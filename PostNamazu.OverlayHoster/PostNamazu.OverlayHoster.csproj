@@ -1,34 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>9.0</LangVersion>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="Advanced Combat Tracker">
-      <HintPath>..\Lib\Advanced Combat Tracker.exe</HintPath>
-      <Private>False</Private>
-      <CopyLocal>False</CopyLocal>
-    </Reference>
-    <Reference Include="OverlayPlugin.Common">
-      <HintPath>..\Lib\SDK\OverlayPlugin.Common.dll</HintPath>
-      <Private>True</Private>
-      <CopyLocal>False</CopyLocal>
-    </Reference>
-    <Reference Include="OverlayPlugin.Core">
-      <HintPath>..\Lib\SDK\OverlayPlugin.Core.dll</HintPath>
-      <Private>False</Private>
-      <CopyLocal>False</CopyLocal>
-    </Reference>
-    <Reference Include="System.Windows.Forms">
-      <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\System.Windows.Forms\v4.0_4.0.0.0__b77a5c561934e089\System.Windows.Forms.dll</HintPath>
-      <Private>False</Private>
-      <CopyLocal>False</CopyLocal>
-    </Reference>
+    <ProjectReference Include="..\..\NotACT\NotACT.csproj"/>
+    <ProjectReference Include="..\..\OverlayPlugin.Core\OverlayPlugin.Core.csproj"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 </Project>

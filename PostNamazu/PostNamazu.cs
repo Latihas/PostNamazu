@@ -1,5 +1,4 @@
 ﻿using Advanced_Combat_Tracker;
-using GreyMagic;
 using PostNamazu.Actions;
 using PostNamazu.Attributes;
 using PostNamazu.Common;
@@ -9,12 +8,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Windows.Forms;
-using static PostNamazu.Common.SigScanner;
+using Dalamud.Game;
+using Dalamud.Plugin;
+using Dalamud.Plugin.Services;
 
 namespace PostNamazu
 {
-    public class PostNamazu : IActPluginV1
+    public class PostNamazu 
     {
         public PostNamazu()
         {
@@ -23,7 +23,7 @@ namespace PostNamazu
 
         public static PostNamazu Plugin;
         internal PostNamazuUi PluginUi;
-        private Label _lblStatus; // The status label that appears in ACT's Plugin tab
+        // private Label _lblStatus; // The status label that appears in ACT's Plugin tab
 
         private ProcessManager _processManager;
         private PluginIntegrationManager _integrationManager;
@@ -32,10 +32,11 @@ namespace PostNamazu
 
         internal Process FFXIV;
         internal FFXIV_ACT_Plugin.FFXIV_ACT_Plugin FFXIV_ACT_Plugin;
-        public ExternalProcessMemory Memory;
-        public SigScanner SigScanner;
+        // public ExternalProcessMemory Memory;
+        public static IDalamudPluginInterface DalamudPluginInterface;
+        public static ISigScanner SigScanner;
+        public static IPluginLog Log;
 
-        private IntPtr _entrancePtr;
         public Dictionary<string, bool> ActionEnabled => PluginUi.ActionEnabled; //直接使用UI控件上的ActionEnabled状态
         private readonly Dictionary<string, HandlerDelegate> CmdBind = new(StringComparer.OrdinalIgnoreCase); //key不区分大小写
 
@@ -73,14 +74,17 @@ namespace PostNamazu
         }
 
         #region Init
-        public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
+        public void InitPlugin(IDalamudPluginInterface dalamudPluginInterface,ISigScanner sig,IPluginLog log)
         {
             Plugin = this;
-            _lblStatus = pluginStatusText;
+            DalamudPluginInterface = dalamudPluginInterface;
+            SigScanner = sig;
+            Log = log;
+            // _lblStatus = pluginStatusText;
 
             PluginUi = new PostNamazuUi();
-            pluginScreenSpace.Controls.Add(PluginUi);
-            pluginScreenSpace.Text = L.Get("PostNamazu/title");
+            // pluginScreenSpace.Controls.Add(PluginUi);
+            // pluginScreenSpace.Text = L.Get("PostNamazu/title");
             
             PluginUi.Log(L.Get("PostNamazu/pluginVersion", Assembly.GetExecutingAssembly().GetName().Version));
 
@@ -102,9 +106,10 @@ namespace PostNamazu
             InitializeActions();
             _integrationManager.InitializeIntegrations();
 
-            Assembly.Load("GreyMagic"); // 直接加载而非首次调用时延迟加载，防止没开启游戏而没调用 GreyMagic 初始化 Memory 时其他插件找不到 GreyMagic
+            // Assembly.Load("GreyMagic"); // 直接加载而非首次调用时延迟加载，防止没开启游戏而没调用 GreyMagic 初始化 Memory 时其他插件找不到 GreyMagic
 
-            _lblStatus.Text = L.Get("PostNamazu/pluginInit");
+            // _lblStatus.Text = L.Get("PostNamazu/pluginInit");
+            Log.Info(L.Get("PostNamazu/pluginInit"));
             LogACT("Initialized");
         }
 
@@ -117,7 +122,8 @@ namespace PostNamazu
             if (_httpServer != null) ServerStop();
             _processManager?.StopProcessMonitoring();
             
-            _lblStatus.Text = L.Get("PostNamazu/pluginDeInit");
+            // _lblStatus.Text = L.Get("PostNamazu/pluginDeInit");
+            Log.Info(L.Get("PostNamazu/pluginDeInit"));
             Plugin = null;
         }
 
@@ -214,7 +220,7 @@ namespace PostNamazu
         {
             if (FFXIV?.HasExited != false) return;
             try {
-                Memory = new ExternalProcessMemory(FFXIV, true, false, _entrancePtr, false, 5, true);
+                // Memory = new ExternalProcessMemory(FFXIV, true, false, _entrancePtr, false, 5, true);
                 PluginUi.Log(L.Get("PostNamazu/xivProcInject", FFXIV.Id));
                 State = StateEnum.Ready;
                 LogACT("Attached");
@@ -223,7 +229,7 @@ namespace PostNamazu
                 {
                     m.State = StateEnum.Waiting;
                 }
-                _frameworkPtrPtr = IntPtr.Zero;
+                // _frameworkPtrPtr = IntPtr.Zero;
                 _isCN = null;
                 GetRegion();
                 foreach (var m in Modules)
@@ -242,85 +248,26 @@ namespace PostNamazu
         internal void Detach()
         {
             FFXIV = null;
-            _frameworkPtrPtr = IntPtr.Zero;
+            // _frameworkPtrPtr = IntPtr.Zero;
             foreach (var m in Modules)
             {
                 m.State = StateEnum.NotReady;
             }
-            try 
-            {
-                if (Memory != null && !Memory.Process.HasExited)
-                    Memory.Dispose();
-            }
-            catch (Exception) {
-                // ignored
-            }
+            // try 
+            // {
+            //     if (Memory != null && !Memory.Process.HasExited)
+            //         Memory.Dispose();
+            // }
+            // catch (Exception) {
+            //     // ignored
+            // }
         }
 
         private FFXIV_ACT_Plugin.FFXIV_ACT_Plugin GetFFXIVPlugin()
         {
-            var plugin = ActGlobals.oFormActMain.ActPlugins.FirstOrDefault(x => x.pluginObj?.GetType()?.ToString() == "FFXIV_ACT_Plugin.FFXIV_ACT_Plugin")?.pluginObj;
+            var plugin = ActGlobals.oFormActMain.FfxivPlugin;
             return (FFXIV_ACT_Plugin.FFXIV_ACT_Plugin)plugin 
                 ?? throw new Exception(L.Get("PostNamazu/parserNotFound"));
-        }
-
-        internal bool GetOffsets()
-        {
-            PluginUi.Log(L.Get("PostNamazu/sigScanning"));
-            SigScanner = new SigScanner(FFXIV);
-
-            _entrancePtr = IntPtr.Zero;
-            if (_entrancePtr == IntPtr.Zero)
-            {
-                try // 7.3h1 global: 0x1400CDDD0 TaskUpdateInputUI 原始
-                {
-                    _entrancePtr = SigScanner.ScanText("4C 8B DC 53 55 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 48 83 B9 ? ? ? ? ? 48 8B DA 48 8B E9 0F 84");
-                    PluginUi.Log(L.Get("PostNamazu/entranceFound", "7.3_raw"));
-                }
-                catch { }
-            }
-            if (_entrancePtr == IntPtr.Zero)
-            {
-                try // 7.2 TaskUpdateInputUI 原始
-                {
-                    _entrancePtr = SigScanner.ScanText("4C 8B DC 56 41 57 48 81 EC ? ? ? ? 48 8B 05 ? ? ? ? 48 33 C4 48 89 84 24 ? ? ? ? 48 83 B9 ? ? ? ? ? 4C 8B FA");
-                    PluginUi.Log(L.Get("PostNamazu/entranceFound", "7.2_raw"));
-                }
-                catch { }
-            }
-            if (_entrancePtr == IntPtr.Zero)
-            {
-                try // 7.3 交叉引用，防止冲突
-                {
-                    _entrancePtr = SigScanner.ScanText(new SigPatternInfo("48 8B C6 33 D2 48 89 87 ? ? ? ? 45 33 C0 4C 8D B7 ? ? ? ? 8D 4A ?", 0x129));
-                    PluginUi.Log(L.Get("PostNamazu/entranceFound", "7.3_xref"));
-                }
-                catch { }
-            }
-            if (_entrancePtr == IntPtr.Zero)
-            {
-                try // 7.2 交叉引用，防止冲突
-                {
-                    _entrancePtr = SigScanner.ScanText(new SigPatternInfo("33 D2 45 33 C0 4C 8B F8 8D 4A ? E8 ? ? ? ? 48 8D 0D", 0x13A));
-                    PluginUi.Log(L.Get("PostNamazu/entranceFound", "7.2_xref"));
-                }
-                catch { }
-            }
-            if (_entrancePtr == IntPtr.Zero)
-            {
-                PluginUi.Log(L.Get("PostNamazu/entranceNotFound"));
-            }
-
-            try {
-                _frameworkPtrPtr = IntPtr.Zero;
-                _isCN = null;
-                GetRegion();
-                return true;
-            }
-            catch (ArgumentException) {
-                PluginUi.Log(L.Get("PostNamazu/xivDetectMemRegionFail"));
-            }
-            return false;
         }
 
         #endregion
@@ -348,21 +295,21 @@ namespace PostNamazu
             }
         }
 
-        private void GetRegionByMemory()
+        private unsafe void GetRegionByMemory()
         {
-            if (FrameworkPtrPtr != IntPtr.Zero) // scanning FrameworkPtrPtr
-            {
-                byte language;
-                try
-                {
-                    language = Memory.Read<byte>(FrameworkPtr + 0x580);
-                }
-                catch
-                {
-                    ExceptionHandler.HandleMemoryReadException();
-                    // 重构修正：内存读取失败时静默返回，避免显示错误信息
-                    return;
-                }
+            // if (FrameworkPtrPtr != IntPtr.Zero) // scanning FrameworkPtrPtr
+            // {
+            byte language = FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance()->ClientLanguage;
+                // try
+                // {
+                //     language = Memory.Read<byte>(FrameworkPtr + 0x580);
+                // }
+                // catch
+                // {
+                //     ExceptionHandler.HandleMemoryReadException();
+                //     // 重构修正：内存读取失败时静默返回，避免显示错误信息
+                //     return;
+                // }
                 bool? result = language switch
                 {
                     0 or 1 or 2 or 3 => false,
@@ -378,53 +325,9 @@ namespace PostNamazu
                     );
                 }
                 else _isCN = false; // default
-            }
+            // }
         }
 
-        private IntPtr _frameworkPtrPtr = IntPtr.Zero;
-        public IntPtr FrameworkPtrPtr
-        {
-            get
-            {
-                if (_frameworkPtrPtr != IntPtr.Zero)
-                {
-                    return _frameworkPtrPtr;
-                }
-                try // 7.0 CN
-                {
-                    _frameworkPtrPtr = SigScanner.ScanText("49 8B C4 48 8B 0D ? ? ? ? 48 8D 15 ? ? ? ? 48 89 05 * * * *", nameof(_frameworkPtrPtr));
-                    return _frameworkPtrPtr;
-                }
-                catch { }
-                try // 7.0 global
-                {
-                    _frameworkPtrPtr = SigScanner.ScanText("49 8B DC 48 89 1D * * * *", nameof(_frameworkPtrPtr));
-                    return _frameworkPtrPtr;
-                }
-                catch (Exception ex)
-                {
-                    PluginUi.Log(L.Get("PostNamazu/xivFrameworkNotFound", ex.Message));
-                    return IntPtr.Zero;
-                }
-            }
-        }
-
-        public IntPtr FrameworkPtr
-        {
-            get
-            {
-                try
-                {
-                    return Memory.Read<IntPtr>(FrameworkPtrPtr);
-                }
-                catch
-                {
-                    ExceptionHandler.HandleMemoryReadException();
-                    // 重构修正：内存读取失败时返回零指针，避免抛出异常
-                    return IntPtr.Zero;
-                }
-            }
-        }
 
         private void LogRegion()
         {
@@ -442,52 +345,12 @@ namespace PostNamazu
         internal void LogACT(string msg)
         {
             var log = $"00|{DateTime.Now:O}|FFFF|{Constants.PluginName}|{msg}|0000000000000000";
-            ActGlobals.oFormActMain.ParseRawLogLine(false, DateTime.Now, log);
+            ActGlobals.oFormActMain.ParseRawLogLine(log);
         }
 
         #endregion
 
         #region Obsolete Methods
-
-        /// <summary>
-        ///     解析插件对应进程改变时触发，解除当前注入并注入新的游戏进程
-        ///     目前由于解析插件的bug，ProcessChanged事件无法正常触发，暂时弃用。
-        /// </summary>
-        /// <param name="tProcess"></param>
-        [Obsolete]
-        private void ProcessChanged(Process tProcess)
-        {
-            if (tProcess.Id != FFXIV?.Id) {
-                Detach();
-                FFXIV = tProcess;
-                if (FFXIV != null)
-                    if (GetOffsets())
-                        Attach();
-                L.Get("PostNamazu/xivProcSwitch", tProcess.Id);
-            }
-        }
-
-        /// <summary>
-        ///     AssemblyResolve事件的处理函数，该函数用来自定义程序集加载逻辑
-        ///     GrayMagic也打包了，已经不需要再从外部加载dll了
-        /// </summary>
-        /// <param name="sender">事件引发源</param>
-        /// <param name="args">事件参数，从该参数中可以获取加载失败的程序集的名称</param>
-        /// <returns></returns>
-        [Obsolete]
-        private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            var name = args.Name.Split(',')[0];
-            //if (name != "GreyMagic") return null;
-            switch (name) {
-                case "GreyMagic":
-                    var selfPluginData = ActGlobals.oFormActMain.PluginGetSelfData(this);
-                    var path = selfPluginData.pluginFile.DirectoryName;
-                    return Assembly.LoadFile($@"{path}\{name}.dll");
-                default:
-                    return null;
-            }
-        }
         #endregion
 
         #region Delegate

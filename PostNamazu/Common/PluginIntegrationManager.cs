@@ -1,7 +1,7 @@
 using System;
-using System.Linq;
 using Advanced_Combat_Tracker;
 using PostNamazu.Common.Localization;
+using Task = System.Threading.Tasks.Task;
 
 namespace PostNamazu.Common
 {
@@ -44,8 +44,7 @@ namespace PostNamazu.Common
         {
             try
             {
-                var plugin = ActGlobals.oFormActMain.ActPlugins
-                    .FirstOrDefault(x => x.pluginObj?.GetType().ToString() == Constants.TriggernometryPluginType)?.pluginObj;
+                var plugin = ActGlobals.oFormActMain.TriggernometryProxyPlugin;
 
                 if (plugin == null)
                 {
@@ -73,25 +72,26 @@ namespace PostNamazu.Common
         /// </summary>
         private void InitializeOverlayIntegration()
         {
-            try
-            {
-                var plugin = ActGlobals.oFormActMain.ActPlugins
-                    .FirstOrDefault(x => x.pluginObj?.GetType().ToString() == Constants.OverlayPluginType)?.pluginObj;
+            Task.Run(async () => {
+                try {
+                    var plugin = ActGlobals.oFormActMain.OverlayPluginContainer;
 
-                if (plugin == null)
-                {
-                    _plugin.PluginUi?.Log(L.Get("PostNamazu/opNotFound"));
-                    return;
+                    while (plugin == null) 
+                    {
+                        _plugin.PluginUi?.Log(L.Get("PostNamazu/opNotFound"));
+                        await Task.Delay(200);
+                        // return;
+                    }
+
+                    _overlayHoster = new OverlayHoster.Program {PostNamazuDelegate = _plugin.DoAction };
+                    _overlayHoster.Init();
+                    _plugin.PluginUi?.Log(L.Get("PostNamazu/op"));
                 }
-
-                _overlayHoster = new OverlayHoster.Program { PostNamazuDelegate = _plugin.DoAction };
-                _overlayHoster.Init();
-                _plugin.PluginUi?.Log(L.Get("PostNamazu/op"));
-            }
-            catch (Exception ex)
-            {
-                _plugin.PluginUi?.Log(ex.Message);
-            }
+                catch (Exception ex)
+                {
+                    _plugin.PluginUi?.Log(ex.Message);
+                }
+            });
         }
     }
 } 

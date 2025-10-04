@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using PostNamazu.Common;
 using PostNamazu.Common.Localization;
-using GreyMagic;
 using System.Threading;
+using Dalamud.Game;
 
 #pragma warning disable IDE0130 // 命名空间与文件夹结构不匹配
 namespace PostNamazu.Actions
@@ -11,12 +12,15 @@ namespace PostNamazu.Actions
 {
     public abstract class NamazuModule
     {
+        internal static T GetSig<T>(string pattern) =>
+            Marshal.GetDelegateForFunctionPointer<T>( SigScanner.ScanText(
+                pattern.Replace('*', '?').Replace("??", "?").Replace("?", "??")));
         protected static PostNamazu PostNamazu => PostNamazu.Plugin;
         protected static FFXIV_ACT_Plugin.FFXIV_ACT_Plugin FFXIV_ACT_Plugin => PostNamazu?.FFXIV_ACT_Plugin;
         protected static Process FFXIV => PostNamazu?.FFXIV;
-        protected static ExternalProcessMemory Memory => PostNamazu?.Memory;
+        // protected static ExternalProcessMemory Memory => PostNamazu?.Memory;
         protected static PostNamazuUi PluginUI => PostNamazu?.PluginUi;
-        protected static SigScanner SigScanner => PostNamazu?.SigScanner;
+        protected static ISigScanner SigScanner => PostNamazu.SigScanner;
 
         public static bool IsPluginReady => FFXIV_ACT_Plugin != null && PostNamazu.State == PostNamazu.StateEnum.Ready;
         
@@ -30,10 +34,10 @@ namespace PostNamazu.Actions
             internal set
             {
                 _state = value;
-                PluginUI.UpdateActionColorByState(GetType().Name, _state);
-#if DEBUG
-                PluginUI.Log($"{GetType().Name} 模组状态变更：{value}");
-#endif
+                // PluginUI.UpdateActionColorByState(GetType().Name, _state);
+// #if DEBUG
+//                 PluginUI.Log($"{GetType().Name} 模组状态变更：{value}");
+// #endif
             }
         }
 
@@ -123,33 +127,33 @@ namespace PostNamazu.Actions
             internal IgnoredException(string msg) : base(msg) { }
         }
 
-        public static void ExecuteWithLock(Action action)
-        {
-            var lockTaken = false;
-            try
-            {
-                Monitor.Enter(Memory.Executor.AssemblyLock, ref lockTaken);
-                action();
-            }
-            finally 
-            { 
-                if (lockTaken) Monitor.Exit(Memory.Executor.AssemblyLock); 
-            }
-        }
+        // public static void ExecuteWithLock(Action action)
+        // {
+        //     var lockTaken = false;
+        //     try
+        //     {
+        //         Monitor.Enter(Memory.Executor.AssemblyLock, ref lockTaken);
+        //         action();
+        //     }
+        //     finally 
+        //     { 
+        //         if (lockTaken) Monitor.Exit(Memory.Executor.AssemblyLock); 
+        //     }
+        // }
 
-        public static T ExecuteWithLock<T>(Func<T> function)
-        {
-            var lockTaken = false;
-            try
-            {
-                Monitor.Enter(Memory.Executor.AssemblyLock, ref lockTaken);
-                return function();
-            }
-            finally 
-            { 
-                if (lockTaken) Monitor.Exit(Memory.Executor.AssemblyLock); 
-            }
-        }
+        // public static T ExecuteWithLock<T>(Func<T> function)
+        // {
+        //     var lockTaken = false;
+        //     try
+        //     {
+        //         Monitor.Enter(Memory.Executor.AssemblyLock, ref lockTaken);
+        //         return function();
+        //     }
+        //     finally 
+        //     { 
+        //         if (lockTaken) Monitor.Exit(Memory.Executor.AssemblyLock); 
+        //     }
+        // }
     }
 
 }

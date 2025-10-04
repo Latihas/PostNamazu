@@ -104,14 +104,14 @@ namespace PostNamazu.Common
             {
                 _plugin.SetState(PostNamazu.StateEnum.NotReady);
             }
-            else if (_plugin.GetOffsets())
-            {
+            // else if (_plugin.GetOffsets())
+            // {
                 _plugin.Attach();
-            }
-            else
-            {
-                _plugin.SetState(PostNamazu.StateEnum.Failure);
-            }
+            // }
+            // else
+            // {
+                // _plugin.SetState(PostNamazu.StateEnum.Failure);
+            // }
         }
     }
 } 

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 
 namespace PostNamazu.Models
 {
@@ -10,17 +11,17 @@ namespace PostNamazu.Models
 		/// <summary>
 		/// X Coordinate of Waymark.
 		/// </summary>
-		public float X { get; set; }
+		public float X => Marker.X;
 
 		/// <summary>
 		/// Y Coordinate of Waymark.
 		/// </summary>
-		public float Y { get; set; }
+		public float Y=> Marker.Y;
 
 		/// <summary>
 		/// Z Coordinate of Waymark.
 		/// </summary>
-		public float Z { get; set; }
+		public float Z => Marker.Z;
 
 		/// <summary>
 		/// ID of Waymark.
@@ -30,7 +31,8 @@ namespace PostNamazu.Models
 		/// <summary>
 		/// Active state of the Waymark.
 		/// </summary>
-		public bool Active { get; set; }
+		public bool Active => Marker.Active;
+		public FieldMarker Marker { get; set; }
 
 		public override int GetHashCode() => X.GetHashCode() & Y.GetHashCode() & Z.GetHashCode() & ID.GetHashCode() & Active.GetHashCode();
 

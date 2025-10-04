@@ -22,7 +22,7 @@ namespace PostNamazu
         }
 
         public bool AutoStart => CheckAutoStart.Checked;
-        private static readonly string SettingsFile = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.FullName, "Config\\PostNamazu.config.xml");
+        private static string SettingsFile => Path.Combine(PostNamazu.DalamudPluginInterface.AssemblyLocation.DirectoryName, "PostNamazu.config.xml");
         public Dictionary<string, bool> ActionEnabled = new();
 
         public void RegisterAction(string name)
@@ -101,14 +101,14 @@ namespace PostNamazu
 
         internal static void RunOnACTUIThread(Action code)
         {
-            if (ActGlobals.oFormActMain.InvokeRequired && !ActGlobals.oFormActMain.IsDisposed && !ActGlobals.oFormActMain.Disposing)
-            {
-                ActGlobals.oFormActMain.Invoke(code);
-            }
-            else
-            {
+            // if (ActGlobals.oFormActMain.InvokeRequired && !ActGlobals.oFormActMain.IsDisposed && !ActGlobals.oFormActMain.Disposing)
+            // {
+            //     ActGlobals.oFormActMain.Invoke(code);
+            // }
+            // else
+            // {
                 code();
-            }
+            // }
         }
 
         public void AddParserMessage(string message)
@@ -119,6 +119,7 @@ namespace PostNamazu
                     lstMessages.Items.RemoveAt(0);
                 var scroll = lstMessages.TopIndex == lstMessages.Items.Count - lstMessages.Height / lstMessages.ItemHeight;
                 lstMessages.Items.Add($"[{DateTime.Now:HH:mm:ss}] {message}");
+                PostNamazu.Log.Info($"[PostNamazu][{DateTime.Now:HH:mm:ss}] {message}");
                 if (scroll)
                     lstMessages.TopIndex = lstMessages.Items.Count - lstMessages.Height / lstMessages.ItemHeight;
             });

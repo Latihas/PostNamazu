@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
 using RainbowMage.OverlayPlugin;
 
@@ -31,10 +30,10 @@ namespace PostNamazu.OverlayHoster
         }
         #region EventSourceBaseRequired
 
-        public override Control CreateConfigControl()
-        {
-            return new Control();
-        }
+        // public override Control CreateConfigControl()
+        // {
+        //     return new Control();
+        // }
 
         public override void LoadConfig(IPluginConfig config)
         {

@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Text;
+using FFXIVClientStructs.FFXIV.Client.System.String;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using PostNamazu.Attributes;
 using PostNamazu.Common;
 using PostNamazu.Common.Localization;
-using GreyMagic;
 #pragma warning disable CS0649 // 从未对字段赋值，字段将一直保持其默认值
 
 namespace PostNamazu.Actions
 {
     internal class NormalCommand : NamazuModule
     {
-        private IntPtr ProcessChatBoxPtr;
-        private IntPtr GetUiModulePtr;
+        private unsafe delegate IntPtr ProcessChatBoxDelegate(UIModule* module, Utf8String* message, IntPtr a3, byte a4);
+        private static ProcessChatBoxDelegate? _processChatBox;
 
         // 本地化字符串定义
         [LocalizationProvider("NormalCommand")]
@@ -25,8 +26,14 @@ namespace PostNamazu.Actions
         public override void GetOffsets()
         {
             base.GetOffsets();
-            ProcessChatBoxPtr = SigScanner.ScanText("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F2 48 8B F9 45 84 C9");
-            GetUiModulePtr = SigScanner.ScanText("E8 * * * * 80 7B 1D 01", nameof(GetUiModulePtr));
+            // ProcessChatBoxPtr = SigScanner.ScanText("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F2 48 8B F9 45 84 C9");
+            // GetUiModulePtr = SigScanner.ScanText("E8 * * * * 80 7B 1D 01", nameof(GetUiModulePtr));
+            try {
+                _processChatBox = GetSig<ProcessChatBoxDelegate>("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F2 48 8B F9 45 84 C9");
+            }
+            catch (Exception e) {
+                PostNamazu.Log.Error("Failed to initialize _processChatBox: " + e);
+            }
         }
 
         void CheckChannel(ref string command)
@@ -46,30 +53,32 @@ namespace PostNamazu.Actions
         /// </summary>
         /// <param name="command">文本指令</param>
         [Command("normalcommand")] [Command("DoNormalTextCommand")]
-        public void DoNormalTextCommand(string command)
+        public unsafe void DoNormalTextCommand(string command)
         {
             CheckBeforeExecution(command);
             CheckChannel(ref command);
             PluginUI.Log(command);
+            fixed (byte* ptr = (ReadOnlySpan<byte>)Encoding.UTF8.GetBytes(command))
+				_processChatBox!(UIModule.Instance(), Utf8String.FromSequence(ptr), IntPtr.Zero, 0);
 
-            ExecuteWithLock(() =>
-            {
-                var array = Encoding.UTF8.GetBytes(command);
-                using AllocatedMemory allocatedMemory = Memory.CreateAllocatedMemory(Constants.MemoryAllocationSize), 
-                      allocatedMemory2 = Memory.CreateAllocatedMemory(array.Length + Constants.CommandBufferSize);
-                allocatedMemory2.AllocateOfChunk("cmd", array.Length);
-                allocatedMemory2.WriteBytes("cmd", array);
-                allocatedMemory.AllocateOfChunk<IntPtr>("cmdAddress");
-                allocatedMemory.AllocateOfChunk<long>("t1");
-                allocatedMemory.AllocateOfChunk<long>("tLength");
-                allocatedMemory.AllocateOfChunk<long>("t3");
-                allocatedMemory.Write("cmdAddress", allocatedMemory2.Address);
-                allocatedMemory.Write("t1", 0x40);
-                allocatedMemory.Write("tLength", array.Length + 1);
-                allocatedMemory.Write("t3", 0x00);
-                var uiModulePtr = Memory.CallInjected64<IntPtr>(GetUiModulePtr, PostNamazu.FrameworkPtr);
-                _ = Memory.CallInjected64<int>(ProcessChatBoxPtr, uiModulePtr, allocatedMemory.Address, IntPtr.Zero, (byte)0);
-            });
+            // ExecuteWithLock(() =>
+            // {
+            //     var array = Encoding.UTF8.GetBytes(command);
+            //     using AllocatedMemory allocatedMemory = Memory.CreateAllocatedMemory(Constants.MemoryAllocationSize), 
+            //           allocatedMemory2 = Memory.CreateAllocatedMemory(array.Length + Constants.CommandBufferSize);
+            //     allocatedMemory2.AllocateOfChunk("cmd", array.Length);
+            //     allocatedMemory2.WriteBytes("cmd", array);
+            //     allocatedMemory.AllocateOfChunk<IntPtr>("cmdAddress");
+            //     allocatedMemory.AllocateOfChunk<long>("t1");
+            //     allocatedMemory.AllocateOfChunk<long>("tLength");
+            //     allocatedMemory.AllocateOfChunk<long>("t3");
+            //     allocatedMemory.Write("cmdAddress", allocatedMemory2.Address);
+            //     allocatedMemory.Write("t1", 0x40);
+            //     allocatedMemory.Write("tLength", array.Length + 1);
+            //     allocatedMemory.Write("t3", 0x00);
+            //     var uiModulePtr = Memory.CallInjected64<IntPtr>(GetUiModulePtr, PostNamazu.FrameworkPtr);
+            //     _ = Memory.CallInjected64<int>(ProcessChatBoxPtr, uiModulePtr, allocatedMemory.Address, IntPtr.Zero, (byte)0);
+            // });
         }
     }
 }

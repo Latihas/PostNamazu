@@ -6,6 +6,10 @@ using PostNamazu.Models;
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using Triggernometry.Utilities;
+
 #pragma warning disable CS0649 // 从未对字段赋值，字段将一直保持其默认值
 
 namespace PostNamazu.Actions
@@ -13,9 +17,11 @@ namespace PostNamazu.Actions
     public class WayMark : NamazuModule
     {
         private WayMarks tempMarks; //暂存场地标点
-        public IntPtr Waymarks;
-        public IntPtr MarkingController;
-        public IntPtr ExecuteCommandPtr;
+        // public IntPtr Waymarks;
+        // public IntPtr MarkingController;
+        // public IntPtr ExecuteCommandPtr;
+        private delegate IntPtr ExecuteCommandDelegate(int a1, int a2, int a3, int a4, int a5);
+        private static ExecuteCommandDelegate? _ExecuteCommandDelegate;
 
         // 本地化字符串定义
         [LocalizationProvider("WayMark")]
@@ -58,16 +64,23 @@ namespace PostNamazu.Actions
         public override void GetOffsets()
         {
             base.GetOffsets();
-            MarkingController = SigScanner.ScanText("48 8D 0D * * * * 4C 8B 85", nameof(MarkingController));
-            Waymarks = MarkingController + 0x1E0;
-            try
-            {
-                ExecuteCommandPtr = SigScanner.ScanText("E8 * * * * 48 83 C4 ?? C3 CC CC CC CC CC CC CC CC CC CC CC CC 48 83 EC ?? 45 0F B6 C0", nameof(ExecuteCommandPtr));
+            try {
+                _ExecuteCommandDelegate = GetSig<ExecuteCommandDelegate>("E8 * * * * 48 83 C4 ?? C3 CC CC CC CC CC CC CC CC CC CC CC CC 48 83 EC ?? 45 0F B6 C0");
             }
-            catch 
-            {   // 可能和其他插件冲突，加一个备用
-                ExecuteCommandPtr = SigScanner.ScanText("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 8B E9 41 8B D9 48 8B 0D ?? ?? ?? ?? 41 8B F8 8B F2", nameof(ExecuteCommandPtr));
+            catch (Exception e) {
+                PostNamazu.Log.Error("Failed to initialize _ExecuteCommandDelegate: " + e);
             }
+            
+            // MarkingController = SigScanner.ScanText("48 8D 0D * * * * 4C 8B 85", nameof(MarkingController));
+            // Waymarks = MarkingController + 0x1E0;
+            // try
+            // {
+            //     ExecuteCommandPtr = SigScanner.ScanText("E8 * * * * 48 83 C4 ?? C3 CC CC CC CC CC CC CC CC CC CC CC CC 48 83 EC ?? 45 0F B6 C0", nameof(ExecuteCommandPtr));
+            // }
+            // catch 
+            // {   // 可能和其他插件冲突，加一个备用
+            //     ExecuteCommandPtr = SigScanner.ScanText("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 8B E9 41 8B D9 48 8B 0D ?? ?? ?? ?? 41 8B F8 8B F2", nameof(ExecuteCommandPtr));
+            // }
         }
 
         /// <summary>
@@ -160,28 +173,30 @@ namespace PostNamazu.Actions
 
         }
 
-        public WayMarks ReadCurrentWaymarks()
+        public unsafe WayMarks ReadCurrentWaymarks()
         {
             CheckBeforeExecution();
+            var m = MarkingController.Instance()->FieldMarkers;
             var waymarks = new WayMarks
             {
-                A = ReadWaymark(Waymarks + 0x00, WaymarkID.A),
-                B = ReadWaymark(Waymarks + 0x20, WaymarkID.B),
-                C = ReadWaymark(Waymarks + 0x40, WaymarkID.C),
-                D = ReadWaymark(Waymarks + 0x60, WaymarkID.D),
-                One = ReadWaymark(Waymarks + 0x80, WaymarkID.One),
-                Two = ReadWaymark(Waymarks + 0xA0, WaymarkID.Two),
-                Three = ReadWaymark(Waymarks + 0xC0, WaymarkID.Three),
-                Four = ReadWaymark(Waymarks + 0xE0, WaymarkID.Four)
+                A = ReadWaymark(m[0], WaymarkID.A),
+				B = ReadWaymark(m[1], WaymarkID.B),
+				C = ReadWaymark(m[2], WaymarkID.C),
+				D = ReadWaymark(m[3], WaymarkID.D),
+				One = ReadWaymark(m[4], WaymarkID.One),
+				Two = ReadWaymark(m[5], WaymarkID.Two),
+				Three = ReadWaymark(m[6], WaymarkID.Three),
+				Four = ReadWaymark(m[7], WaymarkID.Four)
             };
             return waymarks;
 
-            static Waymark ReadWaymark(IntPtr addr, WaymarkID id) => new()
+            static Waymark ReadWaymark(FieldMarker marker, WaymarkID id) => new()
             {
-                X = Memory.Read<float>(addr),
-                Y = Memory.Read<float>(addr + 0x4),
-                Z = Memory.Read<float>(addr + 0x8),
-                Active = Memory.Read<byte>(addr + 0x1C) == 1,
+                // X = Memory.Read<float>(addr),
+                // Y = Memory.Read<float>(addr + 0x4),
+                // Z = Memory.Read<float>(addr + 0x8),
+                // Active = Memory.Read<byte>(addr + 0x1C) == 1,
+                Marker=marker,
                 ID = id
             };
         }
@@ -202,45 +217,49 @@ namespace PostNamazu.Actions
         /// </summary>
         /// <param name="waymark">标点</param>
         /// <param name="id">ID</param>
-        private void WriteWaymark(Waymark waymark, int id = -1)
+        private unsafe void WriteWaymark(Waymark waymark, int id = -1)
         {
             if (waymark == null)
                 return;
 
             var wId = id == -1 ? (byte)waymark.ID : id;
-
-            var markAddr = wId switch
-            {
-                (int)WaymarkID.A => Waymarks + 0x00,
-                (int)WaymarkID.B => Waymarks + 0x20,
-                (int)WaymarkID.C => Waymarks + 0x40,
-                (int)WaymarkID.D => Waymarks + 0x60,
-                (int)WaymarkID.One => Waymarks + 0x80,
-                (int)WaymarkID.Two => Waymarks + 0xA0,
-                (int)WaymarkID.Three => Waymarks + 0xC0,
-                (int)WaymarkID.Four => Waymarks + 0xE0,
-                _ => IntPtr.Zero
-            };
+            if (wId is < 0 or >= 8) PostNamazu.Log.Error("ID必须在0-7范围内");
+			Marshal.StructureToPtr(waymark.Marker,
+				(IntPtr)MarkingController.Instance()
+				+ Marshal.OffsetOf<MarkingController>("_fieldMarkers")
+				+ id * Marshal.SizeOf<FieldMarker>(), false);
+            // var markAddr = wId switch
+            // {
+            //     (int)WaymarkID.A => Memory.Waymarks + 0x00,
+            //     (int)WaymarkID.B => Memory.Waymarks + 0x20,
+            //     (int)WaymarkID.C => Memory.Waymarks + 0x40,
+            //     (int)WaymarkID.D => Memory.Waymarks + 0x60,
+            //     (int)WaymarkID.One => Memory.Waymarks + 0x80,
+            //     (int)WaymarkID.Two => Memory.Waymarks + 0xA0,
+            //     (int)WaymarkID.Three => Memory.Waymarks + 0xC0,
+            //     (int)WaymarkID.Four => Memory.Waymarks + 0xE0,
+            //     _ => IntPtr.Zero
+            // };
 
             // Write the X, Y and Z coordinates
-            Memory.Write(markAddr, waymark.X);
-            Memory.Write(markAddr + 0x4, waymark.Y);
-            Memory.Write(markAddr + 0x8, waymark.Z);
-
-            Memory.Write(markAddr + 0x10, (int)(waymark.X * 1000));
-            Memory.Write(markAddr + 0x14, (int)(waymark.Y * 1000));
-            Memory.Write(markAddr + 0x18, (int)(waymark.Z * 1000));
-
-            // Write the active state
-            Memory.Write(markAddr + 0x1C, (byte)(waymark.Active ? 1 : 0));
+            // Memory.Write(markAddr, waymark.X);
+            // Memory.Write(markAddr + 0x4, waymark.Y);
+            // Memory.Write(markAddr + 0x8, waymark.Z);
+            //
+            // Memory.Write(markAddr + 0x10, (int)(waymark.X * 1000));
+            // Memory.Write(markAddr + 0x14, (int)(waymark.Y * 1000));
+            // Memory.Write(markAddr + 0x18, (int)(waymark.Z * 1000));
+            //
+            // // Write the active state
+            // Memory.Write(markAddr + 0x1C, (byte)(waymark.Active ? 1 : 0));
         }
 
         /// <summary> 将指定标点标记为公开标点。 </summary>
         /// <param name="waymarks">标点，传入 null 时清空标点，单个标点为 null 时忽略。</param>
         public void Public(WayMarks waymarks)
         {
-            ExecuteWithLock(() => 
-            {
+            // ExecuteWithLock(() => 
+            // {
                 if (waymarks == null || waymarks.All(waymark => waymark?.Active == false))
                 {   // clear all
                     ExecuteCommand(313);
@@ -258,28 +277,28 @@ namespace PostNamazu.Actions
                         if (waymark == null) continue;
                         if (waymark.Active)
                         {   // mark single
-                            ExecuteCommand(317, (uint)idx, UIntEncode(waymark.X), UIntEncode(waymark.Y), UIntEncode(waymark.Z));
+                            ExecuteCommand(317, idx, IntEncode(waymark.X), IntEncode(waymark.Y), IntEncode(waymark.Z));
                         }
                         else
                         {   // clear single
-                            ExecuteCommand(318, (uint)idx);
+                            ExecuteCommand(318, idx);
                         }
                     }
                 }
-            });
+            // });
         }
 
-        private uint UIntEncode(float x) => (uint)(x * 1000);
+        private int IntEncode(float x) => (int)(x * 1000);
 
         // 统一使用 uint 调用此内部函数（参数常用于传入 id 等，uint 相比于 int 更合理）
         // 防止 GreyMagic 多次调用时参数类型不一致报错
-        private void ExecuteCommand(uint command, uint a1 = 0, uint a2 = 0, uint a3 = 0, uint a4 = 0)
-            => Memory.CallInjected64<IntPtr>(ExecuteCommandPtr, command, a1, a2, a3, a4);
+        private void ExecuteCommand(int command, int a1 = 0, int a2 = 0, int a3 = 0, int a4 = 0)
+            => _ExecuteCommandDelegate(command, a1, a2, a3, a4);
+                // Memory.CallInjected64<IntPtr>(ExecuteCommandPtr, command, a1, a2, a3, a4);
 
-        public bool GetInCombat()
-        {
-            var op = ActGlobals.oFormActMain.ActPlugins
-                .FirstOrDefault(x => x.pluginObj?.GetType().ToString() == "RainbowMage.OverlayPlugin.PluginLoader")?.pluginObj;
+        public bool GetInCombat() {
+            var op = ActGlobals.oFormActMain.OverlayPluginContainer;
+                // .FirstOrDefault(x => x.pluginObj?.GetType().ToString() == "RainbowMage.OverlayPlugin.PluginLoader")?.pluginObj;
             try
             {
                 var pluginMain = op.GetType().GetField("pluginMain", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(op);

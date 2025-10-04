@@ -1,25 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>9.0</LangVersion>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Advanced Combat Tracker">
-      <HintPath>..\Lib\Advanced Combat Tracker.exe</HintPath>
-      <Private>False</Private>
-      <CopyLocal>False</CopyLocal>
-    </Reference>
-    <Reference Include="Triggernometry">
-      <HintPath>..\Lib\Triggernometry.dll</HintPath>
-      <Private>False</Private>
-      <CopyLocal>False</CopyLocal>
+    <ProjectReference Include="..\..\NotACT\NotACT.csproj"/>
+    <ProjectReference Include="..\..\Triggernometry\Source\Triggernometry\TriggernometryPlugin.csproj"/>
+    <Reference Include="Dalamud">
+      <HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
+      <Private>false</Private>
     </Reference>
   </ItemGroup>
 </Project>
