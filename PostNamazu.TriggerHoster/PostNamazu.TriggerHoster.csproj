@@ -16,4 +16,11 @@
       <Private>false</Private>
     </Reference>
   </ItemGroup>
+<!--    <PropertyGroup>-->
+<!--        <CopyToDirectory>../../IINACT/libs</CopyToDirectory>-->
+<!--    </PropertyGroup>-->
+<!--    <Target Name="CopyDllToDirectory" AfterTargets="Build">-->
+<!--        <MakeDir Directories="$(CopyToDirectory)" Condition="!Exists('$(CopyToDirectory)')"/>-->
+<!--        <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="$(CopyToDirectory)"/>-->
+<!--    </Target>-->
 </Project>

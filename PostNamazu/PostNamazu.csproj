@@ -13,7 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\NotACT\NotACT.csproj"/>
     <Reference Include="FFXIVClientStructs">
-      <HintPath>..\..\..\..\..\AppData\Roaming\XIVLauncherCN\addon\Hooks\dev\FFXIVClientStructs.dll</HintPath>
+      <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
     </Reference>
     <Reference Include="FFXIV_ACT_Plugin">
       <HintPath>..\..\external_dependencies\FFXIV_ACT_Plugin.dll</HintPath>
@@ -47,4 +47,11 @@
       <CopyLocal>True</CopyLocal>
     </ProjectReference>
   </ItemGroup>
+<!--    <PropertyGroup>-->
+<!--        <CopyToDirectory>../../IINACT/libs</CopyToDirectory>-->
+<!--    </PropertyGroup>-->
+<!--    <Target Name="CopyDllToDirectory" AfterTargets="Build">-->
+<!--        <MakeDir Directories="$(CopyToDirectory)" Condition="!Exists('$(CopyToDirectory)')"/>-->
+<!--        <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="$(CopyToDirectory)"/>-->
+<!--    </Target>-->
 </Project>

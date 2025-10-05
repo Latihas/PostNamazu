@@ -44,7 +44,7 @@ namespace PostNamazu.Common
         {
             try
             {
-                var plugin = ActGlobals.oFormActMain.TriggernometryProxyPlugin;
+                var plugin = ActGlobals.oFormActMain.TriggernometryPlugin;
 
                 if (plugin == null)
                 {

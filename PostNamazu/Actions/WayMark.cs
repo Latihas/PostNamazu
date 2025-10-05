@@ -288,7 +288,7 @@ namespace PostNamazu.Actions
             // });
         }
 
-        private int IntEncode(float x) => (int)(x * 1000);
+        internal static int IntEncode(float x) => (int)(x * 1000);
 
         // 统一使用 uint 调用此内部函数（参数常用于传入 id 等，uint 相比于 int 更合理）
         // 防止 GreyMagic 多次调用时参数类型不一致报错

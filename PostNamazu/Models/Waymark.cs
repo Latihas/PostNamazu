@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Numerics;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 
 namespace PostNamazu.Models
@@ -11,17 +12,42 @@ namespace PostNamazu.Models
 		/// <summary>
 		/// X Coordinate of Waymark.
 		/// </summary>
-		public float X => Marker.X;
+		public float X  {
+            get => Marker.Position.X;
+            set => Marker = Marker with {
+                X = Actions.WayMark.IntEncode(value),
+                Position = Marker.Position with {
+                    X = value
+                },
+            };
+        }
+
 
 		/// <summary>
 		/// Y Coordinate of Waymark.
 		/// </summary>
-		public float Y=> Marker.Y;
+		public float Y {
+            get => Marker.Position.Y;
+            set => Marker = Marker with {
+                Y = Actions.WayMark.IntEncode(value),
+                Position = Marker.Position with {
+                    Y = value
+                },
+            };
+        }
 
 		/// <summary>
 		/// Z Coordinate of Waymark.
 		/// </summary>
-		public float Z => Marker.Z;
+		public float Z  {
+            get => Marker.Position.Z;
+            set => Marker = Marker with {
+                Z = Actions.WayMark.IntEncode(value),
+                Position = Marker.Position with {
+                    Z = value
+                },
+            };
+        }
 
 		/// <summary>
 		/// ID of Waymark.
@@ -31,7 +57,12 @@ namespace PostNamazu.Models
 		/// <summary>
 		/// Active state of the Waymark.
 		/// </summary>
-		public bool Active => Marker.Active;
+		public bool Active  {
+            get => Marker.Active;
+            set => Marker = Marker with {
+                    Active = value
+                };
+        }
 		public FieldMarker Marker { get; set; }
 
 		public override int GetHashCode() => X.GetHashCode() & Y.GetHashCode() & Z.GetHashCode() & ID.GetHashCode() & Active.GetHashCode();

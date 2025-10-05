@@ -28,7 +28,7 @@ namespace PostNamazu.TriggerHoster
             var registerNamedCallbackMethod = triggPluginType.GetMethod("RegisterNamedCallback", paramTypes);
             if (registerNamedCallbackMethod == null)
             {
-                RealPlugin.Log.Error("[PostNamazu.TriggerHoster]registerNamedCallbackMethod is null");
+                RealPlugin.plug.FilteredAddToLog(RealPlugin.DebugLevelEnum.Error,"[PostNamazu.TriggerHoster]registerNamedCallbackMethod is null");
                 // var fullName = ActGlobals.oFormActMain.ActPlugins
                 //     .FirstOrDefault(x => x.pluginObj?.GetType().ToString() == "TriggernometryProxy.ProxyPlugin")
                 //     .pluginFile.FullName;
