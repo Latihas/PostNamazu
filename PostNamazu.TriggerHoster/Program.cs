@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using Advanced_Combat_Tracker;
 using Triggernometry;
 using TriggernometryProxy;
 
