@@ -11,9 +11,14 @@ using System.Reflection;
 using Dalamud.Game;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
+using SigScanner = PostNamazu.Common.SigScanner;
 
 namespace PostNamazu
 {
+    public class ExternalProcessMemory
+    {
+        
+    }
     public class PostNamazu 
     {
         public PostNamazu()
@@ -34,8 +39,9 @@ namespace PostNamazu
         internal FFXIV_ACT_Plugin.FFXIV_ACT_Plugin FFXIV_ACT_Plugin;
         // public ExternalProcessMemory Memory;
         public static IDalamudPluginInterface DalamudPluginInterface;
-        public static ISigScanner SigScanner;
-        public static IPluginLog Log;
+        public SigScanner SigScanner;
+        public ISigScanner DalamudSigScanner;
+        public IPluginLog Log;
 
         public Dictionary<string, bool> ActionEnabled => PluginUi.ActionEnabled; //直接使用UI控件上的ActionEnabled状态
         private readonly Dictionary<string, HandlerDelegate> CmdBind = new(StringComparer.OrdinalIgnoreCase); //key不区分大小写
@@ -74,14 +80,14 @@ namespace PostNamazu
         }
 
         #region Init
-        public void InitPlugin(IDalamudPluginInterface dalamudPluginInterface,ISigScanner sig,IPluginLog log)
+        public void InitPlugin(IDalamudPluginInterface dalamudPluginInterface,IPluginLog log,ISigScanner dalamudSigScanner)
         {
             Plugin = this;
             DalamudPluginInterface = dalamudPluginInterface;
-            SigScanner = sig;
             Log = log;
+            DalamudSigScanner = dalamudSigScanner;
             // _lblStatus = pluginStatusText;
-
+            SigScanner = new SigScanner();
             PluginUi = new PostNamazuUi();
             // pluginScreenSpace.Controls.Add(PluginUi);
             // pluginScreenSpace.Text = L.Get("PostNamazu/title");

@@ -17,9 +17,6 @@ namespace PostNamazu.Actions
     public class WayMark : NamazuModule
     {
         private WayMarks tempMarks; //暂存场地标点
-        // public IntPtr Waymarks;
-        // public IntPtr MarkingController;
-        // public IntPtr ExecuteCommandPtr;
         private delegate IntPtr ExecuteCommandDelegate(int a1, int a2, int a3, int a4, int a5);
         private static ExecuteCommandDelegate? _ExecuteCommandDelegate;
 
@@ -70,17 +67,6 @@ namespace PostNamazu.Actions
             catch (Exception e) {
                 PostNamazu.Log.Error("Failed to initialize _ExecuteCommandDelegate: " + e);
             }
-            
-            // MarkingController = SigScanner.ScanText("48 8D 0D * * * * 4C 8B 85", nameof(MarkingController));
-            // Waymarks = MarkingController + 0x1E0;
-            // try
-            // {
-            //     ExecuteCommandPtr = SigScanner.ScanText("E8 * * * * 48 83 C4 ?? C3 CC CC CC CC CC CC CC CC CC CC CC CC 48 83 EC ?? 45 0F B6 C0", nameof(ExecuteCommandPtr));
-            // }
-            // catch 
-            // {   // 可能和其他插件冲突，加一个备用
-            //     ExecuteCommandPtr = SigScanner.ScanText("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 81 EC ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 33 C4 48 89 84 24 ?? ?? ?? ?? 8B E9 41 8B D9 48 8B 0D ?? ?? ?? ?? 41 8B F8 8B F2", nameof(ExecuteCommandPtr));
-            // }
         }
 
         /// <summary>
@@ -192,10 +178,6 @@ namespace PostNamazu.Actions
 
             static Waymark ReadWaymark(FieldMarker marker, WaymarkID id) => new()
             {
-                // X = Memory.Read<float>(addr),
-                // Y = Memory.Read<float>(addr + 0x4),
-                // Z = Memory.Read<float>(addr + 0x8),
-                // Active = Memory.Read<byte>(addr + 0x1C) == 1,
                 Marker=marker,
                 ID = id
             };
@@ -228,30 +210,6 @@ namespace PostNamazu.Actions
 				(IntPtr)MarkingController.Instance()
 				+ Marshal.OffsetOf<MarkingController>("_fieldMarkers")
 				+ id * Marshal.SizeOf<FieldMarker>(), false);
-            // var markAddr = wId switch
-            // {
-            //     (int)WaymarkID.A => Memory.Waymarks + 0x00,
-            //     (int)WaymarkID.B => Memory.Waymarks + 0x20,
-            //     (int)WaymarkID.C => Memory.Waymarks + 0x40,
-            //     (int)WaymarkID.D => Memory.Waymarks + 0x60,
-            //     (int)WaymarkID.One => Memory.Waymarks + 0x80,
-            //     (int)WaymarkID.Two => Memory.Waymarks + 0xA0,
-            //     (int)WaymarkID.Three => Memory.Waymarks + 0xC0,
-            //     (int)WaymarkID.Four => Memory.Waymarks + 0xE0,
-            //     _ => IntPtr.Zero
-            // };
-
-            // Write the X, Y and Z coordinates
-            // Memory.Write(markAddr, waymark.X);
-            // Memory.Write(markAddr + 0x4, waymark.Y);
-            // Memory.Write(markAddr + 0x8, waymark.Z);
-            //
-            // Memory.Write(markAddr + 0x10, (int)(waymark.X * 1000));
-            // Memory.Write(markAddr + 0x14, (int)(waymark.Y * 1000));
-            // Memory.Write(markAddr + 0x18, (int)(waymark.Z * 1000));
-            //
-            // // Write the active state
-            // Memory.Write(markAddr + 0x1C, (byte)(waymark.Active ? 1 : 0));
         }
 
         /// <summary> 将指定标点标记为公开标点。 </summary>
@@ -294,7 +252,6 @@ namespace PostNamazu.Actions
         // 防止 GreyMagic 多次调用时参数类型不一致报错
         private void ExecuteCommand(int command, int a1 = 0, int a2 = 0, int a3 = 0, int a4 = 0)
             => _ExecuteCommandDelegate(command, a1, a2, a3, a4);
-                // Memory.CallInjected64<IntPtr>(ExecuteCommandPtr, command, a1, a2, a3, a4);
 
         public bool GetInCombat() {
             var op = ActGlobals.oFormActMain.OverlayPluginContainer;

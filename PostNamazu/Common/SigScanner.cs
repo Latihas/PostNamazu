@@ -49,7 +49,8 @@ namespace PostNamazu.Common
 
         private IntPtr TextSectionTop => TextSectionBase + TextSectionSize;
 
-        private void SetupSearchSpace(ProcessModule module) {
+        private void SetupSearchSpace(ProcessModule module)
+        {
             var baseAddress = module.BaseAddress;
 
             // We don't want to read all of IMAGE_DOS_HEADER or IMAGE_NT_HEADER stuff so we cheat here.
@@ -68,11 +69,13 @@ namespace PostNamazu.Common
 
             // IMAGE_SECTION_HEADER
             var sectionCursor = sectionHeader;
-            for (var i = 0; i < numSections; i++) {
+            for (var i = 0; i < numSections; i++)
+            {
                 var sectionName = ReadInt64(sectionCursor);
 
                 // .text
-                switch (sectionName) {
+                switch (sectionName)
+                {
                     case 0x747865742E: // .text
                         TextSectionOffset = ReadInt32(sectionCursor, 12);
                         TextSectionSize = ReadInt32(sectionCursor, 8);
@@ -89,33 +92,31 @@ namespace PostNamazu.Common
 
         #region structs
 
-
-
         [StructLayout(LayoutKind.Sequential)]
         public struct IMAGE_DOS_HEADER
         {
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]
-            public char[] e_magic;       // Magic number
-            public UInt16 e_cblp;    // Bytes on last page of file
-            public UInt16 e_cp;      // Pages in file
-            public UInt16 e_crlc;    // Relocations
-            public UInt16 e_cparhdr;     // Size of header in paragraphs
-            public UInt16 e_minalloc;    // Minimum extra paragraphs needed
-            public UInt16 e_maxalloc;    // Maximum extra paragraphs needed
-            public UInt16 e_ss;      // Initial (relative) SS value
-            public UInt16 e_sp;      // Initial SP value
-            public UInt16 e_csum;    // Checksum
-            public UInt16 e_ip;      // Initial IP value
-            public UInt16 e_cs;      // Initial (relative) CS value
-            public UInt16 e_lfarlc;      // File address of relocation table
-            public UInt16 e_ovno;    // Overlay number
+            public char[] e_magic;    // Magic number
+            public UInt16 e_cblp;     // Bytes on last page of file
+            public UInt16 e_cp;       // Pages in file
+            public UInt16 e_crlc;     // Relocations
+            public UInt16 e_cparhdr;  // Size of header in paragraphs
+            public UInt16 e_minalloc; // Minimum extra paragraphs needed
+            public UInt16 e_maxalloc; // Maximum extra paragraphs needed
+            public UInt16 e_ss;       // Initial (relative) SS value
+            public UInt16 e_sp;       // Initial SP value
+            public UInt16 e_csum;     // Checksum
+            public UInt16 e_ip;       // Initial IP value
+            public UInt16 e_cs;       // Initial (relative) CS value
+            public UInt16 e_lfarlc;   // File address of relocation table
+            public UInt16 e_ovno;     // Overlay number
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-            public UInt16[] e_res1;    // Reserved words
-            public UInt16 e_oemid;       // OEM identifier (for e_oeminfo)
-            public UInt16 e_oeminfo;     // OEM information; e_oemid specific
+            public UInt16[] e_res1;  // Reserved words
+            public UInt16 e_oemid;   // OEM identifier (for e_oeminfo)
+            public UInt16 e_oeminfo; // OEM information; e_oemid specific
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 10)]
-            public UInt16[] e_res2;    // Reserved words
-            public Int32 e_lfanew;      // File address of new exe header
+            public UInt16[] e_res2; // Reserved words
+            public Int32 e_lfanew;  // File address of new exe header
 
             private string EMagic => new(e_magic);
 
@@ -304,11 +305,13 @@ namespace PostNamazu.Common
             Itanium = 0x0200,
             x64 = 0x8664
         }
+
         public enum MagicType : ushort
         {
             IMAGE_NT_OPTIONAL_HDR32_MAGIC = 0x10b,
             IMAGE_NT_OPTIONAL_HDR64_MAGIC = 0x20b
         }
+
         public enum SubSystemType : ushort
         {
             IMAGE_SUBSYSTEM_UNKNOWN = 0,
@@ -322,8 +325,8 @@ namespace PostNamazu.Common
             IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER = 12,
             IMAGE_SUBSYSTEM_EFI_ROM = 13,
             IMAGE_SUBSYSTEM_XBOX = 14
-
         }
+
         public enum DllCharacteristicsType : ushort
         {
             RES_0 = 0x0001,
@@ -342,33 +345,39 @@ namespace PostNamazu.Common
         }
 
         #endregion
-        public T Read<T>(IntPtr address) where T : struct {
+
+        public T Read<T>(IntPtr address) where T : struct
+        {
             return _memhelper.Read<T>(address);
         }
-        public T[] Read<T>(IntPtr address, int count) where T : struct {
+
+        public T[] Read<T>(IntPtr address, int count) where T : struct
+        {
             return _memhelper.Read<T>(address, count);
         }
+
         public byte ReadByte(IntPtr address, int offset = 0) => _memhelper.Read<byte>(IntPtr.Add(address, offset));
         public short ReadInt16(IntPtr address, int offset = 0) => _memhelper.Read<short>(IntPtr.Add(address, offset));
         public int ReadInt32(IntPtr address, int offset = 0) => _memhelper.Read<int>(IntPtr.Add(address, offset));
         public long ReadInt64(IntPtr address, int offset = 0) => _memhelper.Read<long>(IntPtr.Add(address, offset));
         public IntPtr ReadIntPtr(IntPtr address, int offset = 0) => _memhelper.Read<IntPtr>(IntPtr.Add(address, offset));
 
-        public SigScanner(Process process) {
+        public SigScanner()
+        {
             //_logger = Locator.Current.GetService<ILogger>();
-            _memhelper = new MemHelper(process);
-            SetupSearchSpace(process.MainModule);
+            _memhelper = new MemHelper();
+            SetupSearchSpace(_memhelper.target.MainModule);
             _baseAddress = _memhelper.BaseAddress;
 
             var dosHeaders = _memhelper.Read<IMAGE_DOS_HEADER>(_baseAddress);
-            if (dosHeaders.IsValid) {
+            if (dosHeaders.IsValid)
+            {
                 var ntHeaders = _memhelper.Read<IMAGE_NT_HEADERS64>(_baseAddress + dosHeaders.e_lfanew);
                 SizeOfCode = ntHeaders.OptionalHeader.SizeOfCode;
                 CodeBase = ntHeaders.OptionalHeader.BaseOfCode;
                 _dataLength = CodeBase + SizeOfCode;
                 _data = _memhelper.ReadBytes(_baseAddress, (int)_dataLength);
             }
-
         }
 
         public T ScanText<T>(string pattern, Func<IntPtr, T> visitor, string name = null)
@@ -409,15 +418,15 @@ namespace PostNamazu.Common
             if (results.Count > 1)
             {
                 throw new ArgumentException(L.Get("PostNamazu/resultMultiple",
-                    name == null ? "" : $" {name} ",
-                    results.Count
-                ));
+                                                  name == null ? "" : $" {name} ",
+                                                  results.Count
+                                            ));
             }
             if (results.Count == 0)
             {
                 throw new ArgumentException(L.Get("PostNamazu/resultNone",
-                    name == null ? "" : $" {name} "
-                ));
+                                                  name == null ? "" : $" {name} "
+                                            ));
             }
 
             var patternPtr = results[0];
@@ -428,7 +437,7 @@ namespace PostNamazu.Common
             }
 #if DEBUG
             PostNamazu.Plugin.PluginUi.Log($"[Scanner] {name ?? ""} @ {patternPtr} ({sig})");
-#endif 
+#endif
             return patternPtr;
         }
 
@@ -507,9 +516,9 @@ namespace PostNamazu.Common
                 NextCmdOffset = nextCmdOffset ?? disp32Offset + 4;
             }
 
-            public override string ToString() => IsRelAddressing 
-                ? $"{Pattern}, Disp32Offset={Disp32Offset}, NextCmdOffset={NextCmdOffset}" 
-                : Pattern;
+            public override string ToString() => IsRelAddressing
+                                                     ? $"{Pattern}, Disp32Offset={Disp32Offset}, NextCmdOffset={NextCmdOffset}"
+                                                     : Pattern;
         }
 
         public List<IntPtr> FindPattern(List<int> pattern)
@@ -522,20 +531,23 @@ namespace PostNamazu.Common
             return results;
         }
 
-        List<IntPtr> Find(List<int> pattern) {
-
+        List<IntPtr> Find(List<int> pattern)
+        {
             var ret = new List<IntPtr>();
             var plen = (uint)pattern.Count;
             var dataLength = _dataLength - plen;
-            for (var i = CodeBase; i < dataLength; i++) {
+            for (var i = CodeBase; i < dataLength; i++)
+            {
                 if (ByteMatch(_data, (int)i, pattern))
                     ret.Add((IntPtr)i);
             }
             return ret;
         }
 
-        bool ByteMatch(byte[] bytes, int start, List<int> pattern) {
-            for (int i = start, j = 0; j < pattern.Count; i++, j++) {
+        bool ByteMatch(byte[] bytes, int start, List<int> pattern)
+        {
+            for (int i = start, j = 0; j < pattern.Count; i++, j++)
+            {
                 if (pattern[j] < 0)
                     continue;
 
@@ -554,18 +566,19 @@ namespace PostNamazu.Common
         /// <param name="offset">The offset from function start of the instruction using the data.</param>
         /// <returns>An IntPtr to the static memory location.</returns>
         [Obsolete("Use relative addressing sigcodes.")]
-        public IntPtr GetStaticAddressFromSig(string signature, int offset = 0, string name = null) {
+        public IntPtr GetStaticAddressFromSig(string signature, int offset = 0, string name = null)
+        {
             var instrAddr = ScanText(signature, name);
             instrAddr = IntPtr.Add(instrAddr, offset);
             var bAddr = (long)_baseAddress;
             long num;
-            do {
+            do
+            {
                 instrAddr = IntPtr.Add(instrAddr, 1);
                 num = ReadInt32(instrAddr) + (long)instrAddr + 4 - bAddr;
             }
             while (!(num >= DataSectionOffset && num <= DataSectionOffset + DataSectionSize));
             return IntPtr.Add(instrAddr, ReadInt32(instrAddr) + 4);
         }
-
     }
 }

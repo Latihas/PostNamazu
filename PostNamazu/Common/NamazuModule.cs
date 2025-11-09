@@ -5,6 +5,7 @@ using PostNamazu.Common;
 using PostNamazu.Common.Localization;
 using System.Threading;
 using Dalamud.Game;
+using SigScanner = PostNamazu.Common.SigScanner;
 
 #pragma warning disable IDE0130 // 命名空间与文件夹结构不匹配
 namespace PostNamazu.Actions
@@ -13,16 +14,17 @@ namespace PostNamazu.Actions
     public abstract class NamazuModule
     {
         internal static T GetSig<T>(string pattern) =>
-            Marshal.GetDelegateForFunctionPointer<T>( SigScanner.ScanText(
-                pattern.Replace('*', '?').Replace("??", "?").Replace("?", "??")));
+            Marshal.GetDelegateForFunctionPointer<T>( DalamudSigScanner.ScanText(
+                                                          pattern.Replace('*', '?').Replace("??", "?").Replace("?", "??")));
         protected static PostNamazu PostNamazu => PostNamazu.Plugin;
         protected static FFXIV_ACT_Plugin.FFXIV_ACT_Plugin FFXIV_ACT_Plugin => PostNamazu?.FFXIV_ACT_Plugin;
         protected static Process FFXIV => PostNamazu?.FFXIV;
         // protected static ExternalProcessMemory Memory => PostNamazu?.Memory;
         protected static PostNamazuUi PluginUI => PostNamazu?.PluginUi;
-        protected static ISigScanner SigScanner => PostNamazu.SigScanner;
+        // protected static SigScanner SigScanner => PostNamazu.SigScanner;
+        protected static ISigScanner DalamudSigScanner => PostNamazu.DalamudSigScanner;
 
-        public static bool IsPluginReady => FFXIV_ACT_Plugin != null && PostNamazu.State == PostNamazu.StateEnum.Ready;
+        public static bool IsPluginReady => true;
         
         
         protected bool complaintAboutModuleNotReady = false;
@@ -30,10 +32,10 @@ namespace PostNamazu.Actions
         protected PostNamazu.StateEnum _state = PostNamazu.StateEnum.NotReady;
         public PostNamazu.StateEnum State
         {
-            get => _state;
+            get =>  PostNamazu.StateEnum .Ready;
             internal set
             {
-                _state = value;
+            //     _state = value;
                 // PluginUI.UpdateActionColorByState(GetType().Name, _state);
 // #if DEBUG
 //                 PluginUI.Log($"{GetType().Name} 模组状态变更：{value}");

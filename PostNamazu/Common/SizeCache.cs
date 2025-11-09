@@ -34,8 +34,8 @@ namespace PostNamazu.Common
                 var fields = Type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 _fieldsizes = new int[fields.Length];
                 var i = 0;
-                foreach (var field in fields) {
-                    var attr = field.GetCustomAttributes(typeof(FixedBufferAttribute), false);
+                foreach (var xfield in fields) {
+                    var attr = xfield.GetCustomAttributes(typeof(FixedBufferAttribute), false);
 
                     if (attr.Length > 0) {
                         var fba = (FixedBufferAttribute)attr[0];
@@ -43,7 +43,7 @@ namespace PostNamazu.Common
                         _fieldsizes[i] = size;
                     }
                     else {
-                        var size = GetSizeOf(field.FieldType);
+                        var size = GetSizeOf(xfield.FieldType);
                         _fieldsizes[i] = size;
                     }
 

@@ -11,17 +11,20 @@ namespace PostNamazu.Common
 
         [DllImport("kernel32.dll", SetLastError = true)]
         [SuppressUnmanagedCodeSecurity]
-        private static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [Out] byte[] lpBuffer,
+        private static extern bool ReadProcessMemory(
+            IntPtr hProcess, IntPtr lpBaseAddress, [Out] byte[] lpBuffer,
             int dwSize, out IntPtr lpNumberOfBytesRead);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         [SuppressUnmanagedCodeSecurity]
-        private static extern bool ReadProcessMemory(IntPtr hProcess,
+        private static extern bool ReadProcessMemory(
+            IntPtr hProcess,
             [Out] [MarshalAs(UnmanagedType.AsAny)] object lpBuffer, int dwSize, out IntPtr lpNumberOfBytesRead);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         [SuppressUnmanagedCodeSecurity]
-        private static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, IntPtr lpBuffer, int dwSize,
+        private static extern bool ReadProcessMemory(
+            IntPtr hProcess, IntPtr lpBaseAddress, IntPtr lpBuffer, int dwSize,
             out IntPtr lpNumberOfBytesRead);
 
         [DllImport("Kernel32.dll", EntryPoint = "RtlMoveMemory", SetLastError = false)]
@@ -30,12 +33,12 @@ namespace PostNamazu.Common
 
         #endregion
 
-        public Process target;
+        public readonly Process target;
 
-        public MemHelper(Process p)
+        public MemHelper()
         {
-            target = p;
-            BaseAddress = target.MainModule.BaseAddress;
+            target = Process.GetCurrentProcess();
+            BaseAddress = target.MainModule!.BaseAddress;
         }
 
         public IntPtr BaseAddress { get; }
@@ -66,7 +69,7 @@ namespace PostNamazu.Common
             var ret = new T[count];
             fixed (byte* pB = ReadBytes(address, SizeCache<T>.Size * count))
             {
-                var genericPtr = (byte*) SizeCache<T>.GetUnsafePtr(ref ret[0]);
+                var genericPtr = (byte*)SizeCache<T>.GetUnsafePtr(ref ret[0]);
                 MoveMemory(genericPtr, pB, SizeCache<T>.Size * count);
             }
 
@@ -89,7 +92,7 @@ namespace PostNamazu.Common
             var ret = new T();
             fixed (byte* b = ReadBytes(address, SizeCache<T>.Size))
             {
-                var tPtr = (byte*) SizeCache<T>.GetUnsafePtr(ref ret);
+                var tPtr = (byte*)SizeCache<T>.GetUnsafePtr(ref ret);
                 MoveMemory(tPtr, b, SizeCache<T>.Size);
             }
 
