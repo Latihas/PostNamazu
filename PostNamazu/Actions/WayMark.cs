@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using Triggernometry.Utilities;
 
 #pragma warning disable CS0649 // 从未对字段赋值，字段将一直保持其默认值
 

@@ -45,6 +45,7 @@ namespace PostNamazu.Common
 
         public byte[] ReadBytes(IntPtr address, int count)
         {
+            
             var bytes = new byte[count];
             ReadProcessMemory(target.Handle, address, bytes, count, out var read);
             return bytes;

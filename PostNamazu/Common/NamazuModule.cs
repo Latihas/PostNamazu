@@ -3,13 +3,9 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using PostNamazu.Common;
 using PostNamazu.Common.Localization;
-using System.Threading;
 using Dalamud.Game;
-using SigScanner = PostNamazu.Common.SigScanner;
 
-#pragma warning disable IDE0130 // 命名空间与文件夹结构不匹配
 namespace PostNamazu.Actions
-#pragma warning restore IDE0130 // 命名空间与文件夹结构不匹配
 {
     public abstract class NamazuModule
     {

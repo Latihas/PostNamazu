@@ -5,6 +5,7 @@ using FFXIVClientStructs.FFXIV.Client.UI;
 using PostNamazu.Attributes;
 using PostNamazu.Common;
 using PostNamazu.Common.Localization;
+
 #pragma warning disable CS0649 // 从未对字段赋值，字段将一直保持其默认值
 
 namespace PostNamazu.Actions
@@ -12,6 +13,7 @@ namespace PostNamazu.Actions
     internal class NormalCommand : NamazuModule
     {
         private unsafe delegate IntPtr ProcessChatBoxDelegate(UIModule* module, Utf8String* message, IntPtr a3, byte a4);
+
         private static ProcessChatBoxDelegate? _processChatBox;
 
         // 本地化字符串定义
@@ -26,10 +28,12 @@ namespace PostNamazu.Actions
         public override void GetOffsets()
         {
             base.GetOffsets();
-            try {
+            try
+            {
                 _processChatBox = GetSig<ProcessChatBoxDelegate>("48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B F2 48 8B F9 45 84 C9");
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 PostNamazu.Log.Error("Failed to initialize _processChatBox: " + e);
             }
         }
@@ -50,14 +54,18 @@ namespace PostNamazu.Actions
         ///     执行给出的文本指令
         /// </summary>
         /// <param name="command">文本指令</param>
-        [Command("normalcommand")] [Command("DoNormalTextCommand")]
+        [Command("normalcommand")]
+        [Command("DoNormalTextCommand")]
         public unsafe void DoNormalTextCommand(string command)
         {
             CheckBeforeExecution(command);
             CheckChannel(ref command);
             PluginUI.Log(command);
-            fixed (byte* ptr = (ReadOnlySpan<byte>)Encoding.UTF8.GetBytes(command))
-				_processChatBox!(UIModule.Instance(), Utf8String.FromSequence(ptr), IntPtr.Zero, 0);
+            TriggernometryProxy.ProxyPlugin.Framework.RunOnFrameworkThread(() =>
+            {
+                fixed (byte* ptr = (ReadOnlySpan<byte>)Encoding.UTF8.GetBytes(command))
+                    _processChatBox!(UIModule.Instance(), Utf8String.FromSequence(ptr), IntPtr.Zero, 0);
+            });
         }
     }
 }

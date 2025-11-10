@@ -1,5 +1,4 @@
-﻿using Advanced_Combat_Tracker;
-using PostNamazu.Actions;
+﻿using PostNamazu.Actions;
 using PostNamazu.Common.Localization;
 using System;
 using System.Collections.Generic;

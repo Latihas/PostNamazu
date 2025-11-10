@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Numerics;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 
 namespace PostNamazu.Models
