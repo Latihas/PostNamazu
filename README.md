@@ -1,3 +1,5 @@
+该仓库不单独使用，为IINACTEX的子模块
+
 # 鲶鱼精邮差
 鲶鱼精邮差是一个用于拓展ACT与相关插件的功能的插件。可以接收[Triggernometry](https://github.com/paissaheavyindustries/Triggernometry/)等插件传递的游戏文本指令，并投递至游戏内执行。  
 

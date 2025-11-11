@@ -6,7 +6,7 @@ namespace PostNamazu.OverlayHoster
 {
     public class Program : IOverlayAddonV2
     {
-        public Action<string, string> PostNamazuDelegate = null;
+        public Action<string, string> PostNamazuDelegate;
         private EventSource eventSource;
 
         

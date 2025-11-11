@@ -15,7 +15,7 @@ namespace PostNamazu.TriggerHoster
 
         public Program(ProxyPlugin plugin)
         {
-            _triggPlugin = (ProxyPlugin)plugin;
+            _triggPlugin = plugin;
         }
 
         public void Init(string[] commands)

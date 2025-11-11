@@ -1,26 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\NotACT\NotACT.csproj"/>
-    <ProjectReference Include="..\..\Triggernometry\Source\Triggernometry\TriggernometryPlugin.csproj"/>
-    <Reference Include="Dalamud">
-      <HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
-<!--    <PropertyGroup>-->
-<!--        <CopyToDirectory>../../IINACT/libs</CopyToDirectory>-->
-<!--    </PropertyGroup>-->
-<!--    <Target Name="CopyDllToDirectory" AfterTargets="Build">-->
-<!--        <MakeDir Directories="$(CopyToDirectory)" Condition="!Exists('$(CopyToDirectory)')"/>-->
-<!--        <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="$(CopyToDirectory)"/>-->
-<!--    </Target>-->
+    <PropertyGroup>
+        <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\NotACT\NotACT.csproj"/>
+        <ProjectReference Include="..\..\Triggernometry\Source\Triggernometry\TriggernometryPlugin.csproj"/>
+        <Reference Include="Dalamud">
+            <HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Newtonsoft.Json">
+            <HintPath>$(DalamudLibPath)Newtonsoft.Json.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
 </Project>
