@@ -21,7 +21,7 @@ namespace PostNamazu
         }
 
         public bool AutoStart => CheckAutoStart.Checked;
-        private static string SettingsFile => Path.Combine(PostNamazu.DalamudPluginInterface.AssemblyLocation.DirectoryName, "PostNamazu.config.xml");
+        private static string SettingsFile => Path.Combine(PostNamazu.DalamudPluginInterface.ConfigDirectory.ToString(), "PostNamazu.config.xml");
         public Dictionary<string, bool> ActionEnabled = new();
 
         public void RegisterAction(string name)
