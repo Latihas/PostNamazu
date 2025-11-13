@@ -5,6 +5,8 @@ using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using PostNamazu.Attributes;
 using PostNamazu.Models;
 using PostNamazu.Common.Localization;
+using Triggernometry.PluginBridges.BridgeNamazu;
+
 #pragma warning disable CS0649 // 从未对字段赋值，字段将一直保持其默认值
 
 namespace PostNamazu.Actions
@@ -77,8 +79,11 @@ namespace PostNamazu.Actions
             {
                 PluginUI.Log($"Mark: Actor={actor.Name} (0x{actor.ID:X8}), Type={markingType} ({(int)markingType}), LocalOnly={localOnly}");
             }
-            _localMarkingDelegate(MarkingController.Instance(), (uint)(markingType - 1), actor.ID, 0);
-            _markingDelegate(0, (uint)(markingType - 1), actor.ID);
+            GreyMagicMemoryBase.ExecuteWithLock(() =>
+            {
+                _localMarkingDelegate(MarkingController.Instance(), (uint)(markingType - 1), actor.ID, 0);
+                _markingDelegate(0, (uint)(markingType - 1), actor.ID);
+            });
         }
     }
 }

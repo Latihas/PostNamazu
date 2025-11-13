@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using Triggernometry.PluginBridges.BridgeNamazu;
 
 #pragma warning disable CS0649 // 从未对字段赋值，字段将一直保持其默认值
 
@@ -205,10 +206,13 @@ namespace PostNamazu.Actions
 
             var wId = id == -1 ? (byte)waymark.ID : id;
             if (wId is < 0 or >= 8) PostNamazu.Log.Error("ID必须在0-7范围内");
-			Marshal.StructureToPtr(waymark.Marker,
-				(IntPtr)MarkingController.Instance()
-				+ Marshal.OffsetOf<MarkingController>("_fieldMarkers")
-				+ id * Marshal.SizeOf<FieldMarker>(), false);
+            GreyMagicMemoryBase.ExecuteWithLock(() =>
+            {
+                Marshal.StructureToPtr(waymark.Marker,
+                                       (IntPtr)MarkingController.Instance()
+                                       + Marshal.OffsetOf<MarkingController>("_fieldMarkers")
+                                       + id * Marshal.SizeOf<FieldMarker>(), false);
+            });
         }
 
         /// <summary> 将指定标点标记为公开标点。 </summary>

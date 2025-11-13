@@ -5,6 +5,7 @@ using FFXIVClientStructs.FFXIV.Client.UI;
 using PostNamazu.Attributes;
 using PostNamazu.Common;
 using PostNamazu.Common.Localization;
+using Triggernometry.PluginBridges.BridgeNamazu;
 
 #pragma warning disable CS0649 // 从未对字段赋值，字段将一直保持其默认值
 
@@ -61,7 +62,7 @@ namespace PostNamazu.Actions
             CheckBeforeExecution(command);
             CheckChannel(ref command);
             PluginUI.Log(command);
-            TriggernometryProxy.ProxyPlugin.Framework.RunOnFrameworkThread(() =>
+            GreyMagicMemoryBase.ExecuteWithLock(() =>
             {
                 fixed (byte* ptr = (ReadOnlySpan<byte>)Encoding.UTF8.GetBytes(command))
                     _processChatBox!(UIModule.Instance(), Utf8String.FromSequence(ptr), IntPtr.Zero, 0);

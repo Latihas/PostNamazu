@@ -27,7 +27,7 @@ namespace PostNamazu
         }
 
         public static PostNamazu Plugin;
-        internal PostNamazuUi PluginUi;
+        public PostNamazuUi PluginUi;
         // private Label _lblStatus; // The status label that appears in ACT's Plugin tab
 
         private ProcessManager _processManager;
@@ -175,7 +175,7 @@ namespace PostNamazu
             return CmdBind.Keys.ToArray();
         }
 
-        private void ServerStart(object sender = null, EventArgs e = null)
+        public void ServerStart(object sender = null, EventArgs e = null)
         {
             try {
                 _httpServer = new HttpServer((int)PluginUi.TextPort.Value)
@@ -193,7 +193,7 @@ namespace PostNamazu
             }
         }
 
-        private void ServerStop(object sender = null, EventArgs e = null)
+        public void ServerStop(object sender = null, EventArgs e = null)
         {
             if (_httpServer != null)
             {

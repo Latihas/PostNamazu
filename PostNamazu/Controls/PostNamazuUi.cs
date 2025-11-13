@@ -112,16 +112,7 @@ namespace PostNamazu
 
         public void AddParserMessage(string message)
         {
-            // RunOnACTUIThread(delegate
-            // {
-            //     if (lstMessages.Items.Count > 500)
-            //         lstMessages.Items.RemoveAt(0);
-            //     var scroll = lstMessages.TopIndex == lstMessages.Items.Count - lstMessages.Height / lstMessages.ItemHeight;
-            //     lstMessages.Items.Add($"[{DateTime.Now:HH:mm:ss}] {message}");
-            //     PostNamazu.Log.Info($"[PostNamazu][{DateTime.Now:HH:mm:ss}] {message}");
-            //     if (scroll)
-            //         lstMessages.TopIndex = lstMessages.Items.Count - lstMessages.Height / lstMessages.ItemHeight;
-            // });
+            lstMessages?.Items.Add($"[{DateTime.Now:HH:mm:ss}] {message}");
             PostNamazu.Plugin.Log.Info($"[PostNamazu][{DateTime.Now:HH:mm:ss}] {message}");
         }
 
