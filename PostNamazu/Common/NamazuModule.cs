@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using PostNamazu.Common;
 using PostNamazu.Common.Localization;
-using Dalamud.Game;
+using Dalamud.Plugin.Services;
 
 namespace PostNamazu.Actions
 {
