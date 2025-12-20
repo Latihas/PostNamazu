@@ -62,7 +62,7 @@ namespace PostNamazu.Actions
             CheckBeforeExecution(command);
             CheckChannel(ref command);
             PluginUI.Log(command);
-            GreyMagicMemoryBase.ExecuteWithLock(() =>
+            Memory.ExecuteWithLock(() =>
             {
                 fixed (byte* ptr = (ReadOnlySpan<byte>)Encoding.UTF8.GetBytes(command))
                     _processChatBox!(UIModule.Instance(), Utf8String.FromSequence(ptr), IntPtr.Zero, 0);

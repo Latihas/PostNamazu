@@ -79,7 +79,7 @@ namespace PostNamazu.Actions
             {
                 PluginUI.Log($"Mark: Actor={actor.Name} (0x{actor.ID:X8}), Type={markingType} ({(int)markingType}), LocalOnly={localOnly}");
             }
-            GreyMagicMemoryBase.ExecuteWithLock(() =>
+            Memory.ExecuteWithLock(() =>
             {
                 _localMarkingDelegate(MarkingController.Instance(), (uint)(markingType - 1), actor.ID, 0);
                 _markingDelegate(0, (uint)(markingType - 1), actor.ID);
