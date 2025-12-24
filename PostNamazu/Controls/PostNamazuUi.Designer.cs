@@ -444,7 +444,7 @@ namespace PostNamazu
         public System.Windows.Forms.Button btnWaymarksImport;
         public System.Windows.Forms.Button btnWaymarksExport;
         private System.Windows.Forms.ToolTip logTip;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutActions;
+        public System.Windows.Forms.FlowLayoutPanel flowLayoutActions;
         private System.Windows.Forms.Panel mainPanel;
         private System.Windows.Forms.TableLayoutPanel mainTable;
         private System.Windows.Forms.TableLayoutPanel leftTable;

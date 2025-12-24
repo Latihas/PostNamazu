@@ -129,7 +129,7 @@ namespace PostNamazu
             _processManager?.StopProcessMonitoring();
             
             // _lblStatus.Text = L.Get("PostNamazu/pluginDeInit");
-            Log.Info(L.Get("PostNamazu/pluginDeInit"));
+            // Log.Info(L.Get("PostNamazu/pluginDeInit"));
             Plugin = null;
         }
 
