@@ -206,7 +206,7 @@ namespace PostNamazu.Actions
 
             var wId = id == -1 ? (byte)waymark.ID : id;
             if (wId is < 0 or >= 8) PostNamazu.Log.Error("ID必须在0-7范围内");
-            Memory.ExecuteWithLock(() =>
+            GreyMagicMemoryBase.ExecuteWithLock(() =>
             {
                 Marshal.StructureToPtr(waymark.Marker,
                                        (IntPtr)MarkingController.Instance()

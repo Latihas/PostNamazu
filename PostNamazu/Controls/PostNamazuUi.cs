@@ -112,8 +112,15 @@ namespace PostNamazu
 
         public void AddParserMessage(string message)
         {
-            lstMessages?.Items.Add($"[{DateTime.Now:HH:mm:ss}] {message}");
-            PostNamazu.Plugin.Log.Info($"[PostNamazu][{DateTime.Now:HH:mm:ss}] {message}");
+            try
+            {
+                lstMessages?.Items.Add($"[{DateTime.Now:HH:mm:ss}] {message}");
+                PostNamazu.Plugin.Log.Info($"[PostNamazu][{DateTime.Now:HH:mm:ss}] {message}");
+            }
+            catch (Exception)
+            {
+                //
+            }
         }
 
         void LoadSettings()
