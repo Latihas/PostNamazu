@@ -224,7 +224,6 @@ namespace PostNamazu
 
         internal void Attach()
         {
-            if (FFXIV?.HasExited != false) return;
             try {
                 // Memory = new ExternalProcessMemory(FFXIV, true, false, _entrancePtr, false, 5, true);
                 PluginUi.Log(L.Get("PostNamazu/xivProcInject", FFXIV.Id));
@@ -261,7 +260,7 @@ namespace PostNamazu
             }
             // try 
             // {
-            //     if (Memory != null && !Memory.Process.HasExited)
+            //     if (Memory != null)
             //         Memory.Dispose();
             // }
             // catch (Exception) {
