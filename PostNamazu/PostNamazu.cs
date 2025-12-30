@@ -8,18 +8,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using Dalamud.Game;
+using System.Windows.Forms;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using SigScanner = PostNamazu.Common.SigScanner;
 
 namespace PostNamazu
 {
-    public class ExternalProcessMemory
-    {
-        
-    }
-    public class PostNamazu 
+    public class PostNamazu : IActPluginV1
     {
         public PostNamazu()
         {
@@ -117,6 +113,10 @@ namespace PostNamazu
             // _lblStatus.Text = L.Get("PostNamazu/pluginInit");
             Log.Info(L.Get("PostNamazu/pluginInit"));
             LogACT("Initialized");
+        }
+
+        public void InitPlugin(TabPage pluginScreenSpace, Label pluginStatusText)
+        {
         }
 
         public void DeInitPlugin()
