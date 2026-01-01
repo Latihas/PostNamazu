@@ -15,8 +15,8 @@ namespace PostNamazu.Actions
     {
         private delegate IntPtr MarkingDelegate(long a1, uint markingTypeOrder, long id);
         private unsafe delegate void LocalMarkingDelegate(MarkingController* controller, uint markingTypeOrder, long id, uint a4);
-        private static MarkingDelegate? _markingDelegate;
-        private static LocalMarkingDelegate? _localMarkingDelegate;
+        private static MarkingDelegate _markingDelegate;
+        private static LocalMarkingDelegate _localMarkingDelegate;
 
         // 本地化字符串定义
         [LocalizationProvider("Mark")]

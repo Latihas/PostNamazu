@@ -280,7 +280,7 @@ namespace PostNamazu
         #region Region Detection
 
         internal static bool _playerDetected = false;
-        internal static bool? _isCN = null;
+        internal static bool? _isCN;
         public bool IsCN
         {
             get

@@ -15,7 +15,7 @@ namespace PostNamazu.Actions
     {
         private unsafe delegate IntPtr ProcessChatBoxDelegate(UIModule* module, Utf8String* message, IntPtr a3, byte a4);
 
-        private static ProcessChatBoxDelegate? _processChatBox;
+        private static ProcessChatBoxDelegate _processChatBox;
 
         // 本地化字符串定义
         [LocalizationProvider("NormalCommand")]

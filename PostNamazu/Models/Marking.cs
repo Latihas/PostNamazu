@@ -11,7 +11,7 @@ namespace PostNamazu.Models
         [JsonProperty]
         public MarkType? MarkType { get; set; }
         [JsonProperty]
-        public bool LocalOnly { get; set; } = false;
+        public bool LocalOnly { get; set; }
         [JsonProperty]
         public bool Log { get; set; } = true;
     }

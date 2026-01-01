@@ -17,8 +17,10 @@ namespace PostNamazu.Actions
     public class WayMark : NamazuModule
     {
         private WayMarks tempMarks; //暂存场地标点
+
         private delegate IntPtr ExecuteCommandDelegate(int a1, int a2, int a3, int a4, int a5);
-        private static ExecuteCommandDelegate? _ExecuteCommandDelegate;
+
+        private static ExecuteCommandDelegate _ExecuteCommandDelegate;
 
         // 本地化字符串定义
         [LocalizationProvider("WayMark")]
@@ -30,11 +32,11 @@ namespace PostNamazu.Actions
             [Localized("Waymarks: cache restored", "场地标点: 已公开清除所有标点。")]
             public static readonly string ClearPublic;
 
-            [Localized("Waymarks: Failed to obtain InCombat status from OverlayPlugin: \n{0}", 
+            [Localized("Waymarks: Failed to obtain InCombat status from OverlayPlugin: \n{0}",
                        "从 OverlayPlugin 获取战斗状态失败：\n{0}")]
             public static readonly string GetInCombatFail;
 
-            [Localized("Waymarks: Currently in combat, unable to place public waymarks.", 
+            [Localized("Waymarks: Currently in combat, unable to place public waymarks.",
                        "场地标点: 当前处于战斗状态，无法公开标点。")]
             public static readonly string InCombat;
 
@@ -53,7 +55,7 @@ namespace PostNamazu.Actions
             [Localized("Waymarks: current waymarks saved to cache", "场地标点: 已暂存当前标点。")]
             public static readonly string Save;
 
-            [Localized("Waymarks: Exception occurred when saving waymarks: \n{0}", 
+            [Localized("Waymarks: Exception occurred when saving waymarks: \n{0}",
                        "场地标点: 保存标记错误：\n{0}")]
             public static readonly string SaveException;
         }
@@ -61,10 +63,12 @@ namespace PostNamazu.Actions
         public override void GetOffsets()
         {
             base.GetOffsets();
-            try {
+            try
+            {
                 _ExecuteCommandDelegate = GetSig<ExecuteCommandDelegate>("E8 * * * * 48 83 C4 ?? C3 CC CC CC CC CC CC CC CC CC CC CC CC 48 83 EC ?? 45 0F B6 C0");
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 PostNamazu.Log.Error("Failed to initialize _ExecuteCommandDelegate: " + e);
             }
         }
@@ -84,16 +88,19 @@ namespace PostNamazu.Actions
             WriteWaymark(waymarks.Three, 6);
             WriteWaymark(waymarks.Four, 7);
         }
+
         /// <summary>
         ///     场地标点
         /// </summary>
         /// <param name="waymarksStr">标点合集序列化Json字符串</param>
-        [Command("place")] [Command("DoWaymarks")]
+        [Command("place")]
+        [Command("DoWaymarks")]
         public void DoWaymarks(string waymarksStr)
         {
             CheckBeforeExecution(waymarksStr);
 
-            switch (waymarksStr.ToLower().Trim()) {
+            switch (waymarksStr.ToLower().Trim())
+            {
                 case "save":
                 case "backup":
                     SaveWaymark();
@@ -149,14 +156,15 @@ namespace PostNamazu.Actions
         {
             tempMarks = new WayMarks();
 
-            try {
+            try
+            {
                 tempMarks = ReadCurrentWaymarks();
                 PluginUI.Log(L.Get("WayMark/Save"));
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 throw new Exception(L.Get("WayMark/SaveException", ex.Message));
             }
-
         }
 
         public unsafe WayMarks ReadCurrentWaymarks()
@@ -166,19 +174,19 @@ namespace PostNamazu.Actions
             var waymarks = new WayMarks
             {
                 A = ReadWaymark(m[0], WaymarkID.A),
-				B = ReadWaymark(m[1], WaymarkID.B),
-				C = ReadWaymark(m[2], WaymarkID.C),
-				D = ReadWaymark(m[3], WaymarkID.D),
-				One = ReadWaymark(m[4], WaymarkID.One),
-				Two = ReadWaymark(m[5], WaymarkID.Two),
-				Three = ReadWaymark(m[6], WaymarkID.Three),
-				Four = ReadWaymark(m[7], WaymarkID.Four)
+                B = ReadWaymark(m[1], WaymarkID.B),
+                C = ReadWaymark(m[2], WaymarkID.C),
+                D = ReadWaymark(m[3], WaymarkID.D),
+                One = ReadWaymark(m[4], WaymarkID.One),
+                Two = ReadWaymark(m[5], WaymarkID.Two),
+                Three = ReadWaymark(m[6], WaymarkID.Three),
+                Four = ReadWaymark(m[7], WaymarkID.Four)
             };
             return waymarks;
 
             static Waymark ReadWaymark(FieldMarker marker, WaymarkID id) => new()
             {
-                Marker=marker,
+                Marker = marker,
                 ID = id
             };
         }
@@ -219,34 +227,34 @@ namespace PostNamazu.Actions
         /// <param name="waymarks">标点，传入 null 时清空标点，单个标点为 null 时忽略。</param>
         public void Public(WayMarks waymarks)
         {
-            // ExecuteWithLock(() => 
-            // {
-                if (waymarks == null || waymarks.All(waymark => waymark?.Active == false))
-                {   // clear all
-                    ExecuteCommand(313);
-                    if (waymarks == null)
-                    {
-                        Log(L.Get("WayMark/ClearPublic"));
-                    }
-                }
-                else
+            if (waymarks == null || waymarks.All(waymark => waymark?.Active == false))
+            {
+                // clear all
+                ExecuteCommand(313);
+                if (waymarks == null)
                 {
-                    var idx = -1;
-                    foreach (var waymark in waymarks)
+                    Log(L.Get("WayMark/ClearPublic"));
+                }
+            }
+            else
+            {
+                var idx = -1;
+                foreach (var waymark in waymarks)
+                {
+                    idx++;
+                    if (waymark == null) continue;
+                    if (waymark.Active)
                     {
-                        idx++;
-                        if (waymark == null) continue;
-                        if (waymark.Active)
-                        {   // mark single
-                            ExecuteCommand(317, idx, IntEncode(waymark.X), IntEncode(waymark.Y), IntEncode(waymark.Z));
-                        }
-                        else
-                        {   // clear single
-                            ExecuteCommand(318, idx);
-                        }
+                        // mark single
+                        ExecuteCommand(317, idx, IntEncode(waymark.X), IntEncode(waymark.Y), IntEncode(waymark.Z));
+                    }
+                    else
+                    {
+                        // clear single
+                        ExecuteCommand(318, idx);
                     }
                 }
-            // });
+            }
         }
 
         internal static int IntEncode(float x) => (int)(x * 1000);
@@ -256,19 +264,18 @@ namespace PostNamazu.Actions
         private void ExecuteCommand(int command, int a1 = 0, int a2 = 0, int a3 = 0, int a4 = 0)
             => _ExecuteCommandDelegate(command, a1, a2, a3, a4);
 
-        public bool GetInCombat() {
-            var op = ActGlobals.oFormActMain.OverlayPluginContainer;
-                // .FirstOrDefault(x => x.pluginObj?.GetType().ToString() == "RainbowMage.OverlayPlugin.PluginLoader")?.pluginObj;
+        public bool GetInCombat()
+        {
             try
             {
-                var pluginMain = op.GetType().GetField("pluginMain", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(op);
-                var container = pluginMain.GetType().GetField("_container", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(pluginMain);
-                var inCombatMemoryType = Type.GetType("RainbowMage.OverlayPlugin.MemoryProcessors.InCombat.IInCombatMemory, OverlayPlugin.Core");
-                var resolveMethodGeneric = container.GetType().GetMethod("Resolve", BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null);
-                var resolveMethodSpecific = resolveMethodGeneric.MakeGenericMethod(inCombatMemoryType);
-                var inCombatMemoryManager = resolveMethodSpecific.Invoke(container, null);
-                var getInCombatMethod = inCombatMemoryManager.GetType().GetMethod("GetInCombat");
-                return (bool)getInCombatMethod.Invoke(inCombatMemoryManager, null);
+                var op = ActGlobals.oFormActMain.ActPlugins
+                                   .First(x => x.pluginObj.GetType() == typeof(RainbowMage.OverlayPlugin.PluginLoader))
+                                   .pluginObj as RainbowMage.OverlayPlugin.PluginLoader;
+
+                var pluginMain = op!.pluginMain;
+                var container = pluginMain._container;
+                var inCombatMemoryManager = container.Resolve<RainbowMage.OverlayPlugin.MemoryProcessors.InCombat.IInCombatMemory>();
+                return inCombatMemoryManager.GetInCombat();
             }
             catch (Exception ex)
             {

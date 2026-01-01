@@ -23,7 +23,7 @@ namespace PostNamazu.Actions
         public static bool IsPluginReady => true;
         
         
-        protected bool complaintAboutModuleNotReady = false;
+        protected bool complaintAboutModuleNotReady;
 
         protected PostNamazu.StateEnum _state = PostNamazu.StateEnum.NotReady;
         public PostNamazu.StateEnum State
