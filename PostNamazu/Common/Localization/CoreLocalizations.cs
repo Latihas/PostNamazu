@@ -1,228 +1,213 @@
 #pragma warning disable CS0169 // 字段从未被使用
-namespace PostNamazu.Common.Localization
-{
-    /// <summary>
-    /// 核心本地化字符串定义
-    /// </summary>
-    [LocalizationProvider("PostNamazu")]
-    public static class CoreLocalizations
-    {
-        // UI相关
-        [Localized("PostNamazu", "鲶鱼精邮差")]
-        private static readonly string title;
+namespace PostNamazu.Common.Localization;
 
-        [Localized("Export", "导出")]
-        private static readonly string btnWaymarksExport;
+/// <summary>
+///     核心本地化字符串定义
+/// </summary>
+[LocalizationProvider("PostNamazu")]
+public static class CoreLocalizations {
+    // UI相关
+    [Localized("PostNamazu", "鲶鱼精邮差")] private static readonly string title;
 
-        [Localized("Import", "导入")]
-        private static readonly string btnWaymarksImport;
+    [Localized("Export", "导出")] private static readonly string btnWaymarksExport;
 
-        [Localized("Clear Logs", "清空全部日志")]
-        private static readonly string ButtonClearMessage;
+    [Localized("Import", "导入")] private static readonly string btnWaymarksImport;
 
-        [Localized("Copy All Logs", "复制全部日志")]
-        private static readonly string ButtonCopyProblematic;
+    [Localized("Clear Logs", "清空全部日志")] private static readonly string ButtonClearMessage;
 
-        [Localized("Copy Selection", "复制所选日志")]
-        private static readonly string ButtonCopySelection;
+    [Localized("Copy All Logs", "复制全部日志")] private static readonly string ButtonCopyProblematic;
 
-        [Localized("Start", "开始")]
-        private static readonly string ButtonStart;
+    [Localized("Copy Selection", "复制所选日志")]
+    private static readonly string ButtonCopySelection;
 
-        [Localized("Stop", "停止")]
-        private static readonly string ButtonStop;
+    [Localized("Start", "开始")] private static readonly string ButtonStart;
 
-        [Localized("Auto-start Listening", "自动启动监听")]
-        private static readonly string CheckAutoStart;
+    [Localized("Stop", "停止")] private static readonly string ButtonStop;
 
-        [Localized("PostNamazu", "鲶鱼精邮差")]
-        private static readonly string mainGroupBox;
+    [Localized("Auto-start Listening", "自动启动监听")]
+    private static readonly string CheckAutoStart;
 
-        [Localized("Enabled Commands:", "启用以下动作")]
-        private static readonly string lblEnabledCmd;
+    [Localized("PostNamazu", "鲶鱼精邮差")] private static readonly string mainGroupBox;
 
-        [Localized("Port", "端口")]
-        private static readonly string lbPort;
+    [Localized("Enabled Commands:", "启用以下动作")]
+    private static readonly string lblEnabledCmd;
 
-        [Localized("Enabled Commands", "启用以下动作")]
-        private static readonly string grpEnabledCmd;
+    [Localized("Port", "端口")] private static readonly string lbPort;
 
-        [Localized("HTTP", "HTTP")]
-        private static readonly string grpHttp;
+    [Localized("Enabled Commands", "启用以下动作")]
+    private static readonly string grpEnabledCmd;
 
-        [Localized("Language", "语言")]
-        private static readonly string grpLang;
+    [Localized("HTTP", "HTTP")] private static readonly string grpHttp;
 
-        [Localized("Waymarks", "场地标点")]
-        private static readonly string grpWaymarks;
+    [Localized("Language", "语言")] private static readonly string grpLang;
 
-        [Localized("Import waymarks", "导入场地标点")]
-        private static readonly string importWaymarksForm;
+    [Localized("Waymarks", "场地标点")] private static readonly string grpWaymarks;
 
-        [Localized("Fill in default data", "填入默认数据")]
-        private static readonly string importWaymarksFormBtnDefault;
+    [Localized("Import waymarks", "导入场地标点")]
+    private static readonly string importWaymarksForm;
 
-        [Localized("Import as local waymarks", "导入为本地标点")]
-        private static readonly string importWaymarksFormBtnPlace;
+    [Localized("Fill in default data", "填入默认数据")]
+    private static readonly string importWaymarksFormBtnDefault;
 
-        [Localized("Import as public waymarks", "导入为公开标点")]
-        private static readonly string importWaymarksFormBtnPublic;
+    [Localized("Import as local waymarks", "导入为本地标点")]
+    private static readonly string importWaymarksFormBtnPlace;
 
-        [Localized("Input waymarks JSON string", "输入标点 JSON 字符串")]
-        private static readonly string importWaymarksFormGrpMain;
+    [Localized("Import as public waymarks", "导入为公开标点")]
+    private static readonly string importWaymarksFormBtnPublic;
 
-        // 主程序相关
-        [Localized("Action Ignored: {0}: {1}", "忽略动作：{0}: {1}")]
-        private static readonly string actionIgnored;
+    [Localized("Input waymarks JSON string", "输入标点 JSON 字符串")]
+    private static readonly string importWaymarksFormGrpMain;
 
-        [Localized("Unsupported operation: {0}", "不支持的操作：{0}。")]
-        private static readonly string actionNotFound;
+    // 主程序相关
+    [Localized("Action Ignored: {0}: {1}", "忽略动作：{0}: {1}")]
+    private static readonly string actionIgnored;
 
-        [Localized("Exception when executing action {0}: \n{1}", "执行 {0} 动作时遇到错误：{1}")]
-        private static readonly string doActionFail;
+    [Localized("Unsupported operation: {0}", "不支持的操作：{0}。")]
+    private static readonly string actionNotFound;
 
-        [Localized("FFXIV entrance function found ({0}).", "找到 FFXIV 入口函数（{0}）。")]
-        private static readonly string entranceFound;
+    [Localized("Exception when executing action {0}: \n{1}", "执行 {0} 动作时遇到错误：{1}")]
+    private static readonly string doActionFail;
 
-        [Localized("Specified FFXIV entrance functions not found, temporarily using the default DX11 function instead. Note that this may cause compatibility issues.",
-            "未找到指定的 FFXIV 入口函数，临时使用默认的 DX11 函数代替。注意这可能导致兼容性问题。")]
-        private static readonly string entranceNotFound;
+    [Localized("FFXIV entrance function found ({0}).", "找到 FFXIV 入口函数（{0}）。")]
+    private static readonly string entranceFound;
 
-        [Localized("Unable to start listening on HTTP port {0}: \n{1}", "无法在 {0} 端口启动监听：\n{1}")]
-        private static readonly string httpException;
+    [Localized("Specified FFXIV entrance functions not found, temporarily using the default DX11 function instead. Note that this may cause compatibility issues.",
+        "未找到指定的 FFXIV 入口函数，临时使用默认的 DX11 函数代替。注意这可能导致兼容性问题。")]
+    private static readonly string entranceNotFound;
 
-        [Localized("Started HTTP listening on port {0}.", "在 {0} 端口启动 HTTP 监听。")]
-        private static readonly string httpStart;
+    [Localized("Unable to start listening on HTTP port {0}: \n{1}", "无法在 {0} 端口启动监听：\n{1}")]
+    private static readonly string httpException;
 
-        [Localized("HTTP listening stopped.", "已停止 HTTP 监听。")]
-        private static readonly string httpStop;
+    [Localized("Started HTTP listening on port {0}.", "在 {0} 端口启动 HTTP 监听。")]
+    private static readonly string httpStart;
 
-        [Localized("OverlayPlugin registered.", "已绑定 OverlayPlugin。")]
-        private static readonly string op;
+    [Localized("HTTP listening stopped.", "已停止 HTTP 监听。")]
+    private static readonly string httpStop;
 
-        [Localized("OverlayPlugin not found.", "没有找到 OverlayPlugin。")]
-        private static readonly string opNotFound;
+    [Localized("OverlayPlugin registered.", "已绑定 OverlayPlugin。")]
+    private static readonly string op;
 
-        [Localized("FFXIV parsing plugin not found, please ensure it is loaded before PostNamazu.", 
-                   "找不到 FFXIV 解析插件，请确保其加载顺序位于鲶鱼精邮差之前。")]
-        private static readonly string parserNotFound;
+    [Localized("OverlayPlugin not found.", "没有找到 OverlayPlugin。")]
+    private static readonly string opNotFound;
 
-        [Localized("PostNamazu has exited.", "鲶鱼精邮差已退出。")]
-        private static readonly string pluginDeInit;
+    [Localized("FFXIV parsing plugin not found, please ensure it is loaded before PostNamazu.",
+        "找不到 FFXIV 解析插件，请确保其加载顺序位于鲶鱼精邮差之前。")]
+    private static readonly string parserNotFound;
 
-        [Localized("PostNamazu has started.", "鲶鱼精邮差已启动。")]
-        private static readonly string pluginInit;
+    [Localized("PostNamazu has exited.", "鲶鱼精邮差已退出。")]
+    private static readonly string pluginDeInit;
 
-        [Localized("Plugin Version: {0}", "插件版本：{0}。")]
-        private static readonly string pluginVersion;
+    [Localized("PostNamazu has started.", "鲶鱼精邮差已启动。")]
+    private static readonly string pluginInit;
 
-        [Localized("Failed to read memory during initialization, which might be because of Dalamud or other plugins.", 
-                   "初始化时读取内存失败，可能是卫月等插件所致。")]
-        private static readonly string readMemoryFail;
+    [Localized("Plugin Version: {0}", "插件版本：{0}。")]
+    private static readonly string pluginVersion;
 
-        [Localized("Scanning memory signatures...", "正在扫描内存特征……")]
-        private static readonly string sigScanning;
+    [Localized("Failed to read memory during initialization, which might be because of Dalamud or other plugins.",
+        "初始化时读取内存失败，可能是卫月等插件所致。")]
+    private static readonly string readMemoryFail;
 
-        [Localized("Triggernometry registered.", "已绑定 Triggernometry。")]
-        private static readonly string trig;
+    [Localized("Scanning memory signatures...", "正在扫描内存特征……")]
+    private static readonly string sigScanning;
 
-        [Localized("Triggernometry not found.", "没有找到 Triggernometry。")]
-        private static readonly string trigNotFound;
+    [Localized("Triggernometry registered.", "已绑定 Triggernometry。")]
+    private static readonly string trig;
 
-        [Localized("Set region to Chinese server (detected by memory).", "已设置为国服配置（根据内存信息判断）。")]
-        private static readonly string xivDetectMemRegionCN;
+    [Localized("Triggernometry not found.", "没有找到 Triggernometry。")]
+    private static readonly string trigNotFound;
 
-        [Localized("Set region to global server (detected by memory).", "已设置为国际服配置（根据内存信息判断）。")]
-        private static readonly string xivDetectMemRegionGlobal;
+    [Localized("Set region to Chinese server (detected by memory).", "已设置为国服配置（根据内存信息判断）。")]
+    private static readonly string xivDetectMemRegionCN;
 
-        [Localized("Set region to Chinese server.", "已设置为国服。")]
-        private static readonly string xivDetectRegionCN;
+    [Localized("Set region to global server (detected by memory).", "已设置为国际服配置（根据内存信息判断）。")]
+    private static readonly string xivDetectMemRegionGlobal;
 
-        [Localized("Unable to detect region and other necessary data. If the game has recently updated, please wait for the plugin to be updated.",
-                   "无法检测到区域等关键信息。如果游戏此前更新了版本，请等待插件更新。")]
-        private static readonly string xivDetectRegionFail;
+    [Localized("Set region to Chinese server.", "已设置为国服。")]
+    private static readonly string xivDetectRegionCN;
 
-        [Localized("Set region to global server.", "已设置为国际服。")]
-        private static readonly string xivDetectRegionGlobal;
+    [Localized("Unable to detect region and other necessary data. If the game has recently updated, please wait for the plugin to be updated.",
+        "无法检测到区域等关键信息。如果游戏此前更新了版本，请等待插件更新。")]
+    private static readonly string xivDetectRegionFail;
 
-        [Localized("Detected GLOBAL key: {0}", "检测到 GLOBAL 密钥：{0}")]
-        private static readonly string xivDetectKey;
+    [Localized("Set region to global server.", "已设置为国际服。")]
+    private static readonly string xivDetectRegionGlobal;
 
-        [Localized("Failed to find memory signature for Framework, some features will not be available. The plugin may need to be updated. Exception: {0}", 
-                   "未找到 Framework 的内存签名，部分功能无法使用，可能需要更新插件版本。错误：{0}")]
-        private static readonly string xivFrameworkNotFound;
+    [Localized("Detected GLOBAL key: {0}", "检测到 GLOBAL 密钥：{0}")]
+    private static readonly string xivDetectKey;
 
-        [Localized("Found FFXIV process {0}.", "已找到 FFXIV 进程 {0}。")]
-        private static readonly string xivProcInject;
+    [Localized("Failed to find memory signature for Framework, some features will not be available. The plugin may need to be updated. Exception: {0}",
+        "未找到 Framework 的内存签名，部分功能无法使用，可能需要更新插件版本。错误：{0}")]
+    private static readonly string xivFrameworkNotFound;
 
-        [Localized("Connected to FFXIV process {0}.", "已连接至 FFXIV 进程 {0}。")]
-        private static readonly string xivProcInjectConnected;
+    [Localized("Found FFXIV process {0}.", "已找到 FFXIV 进程 {0}。")]
+    private static readonly string xivProcInject;
 
-        [Localized("Error when injecting into FFXIV process, retry later: \n{0}", "注入 FFXIV 进程时发生错误，正在重试：\n{0}")]
-        private static readonly string xivProcInjectException;
+    [Localized("Connected to FFXIV process {0}.", "已连接至 FFXIV 进程 {0}。")]
+    private static readonly string xivProcInjectConnected;
 
-        [Localized("Failed to connect to FFXIV process {0}:\n{1}", "无法连接至 FFXIV 进程 {0}：\n{1}")]
-        private static readonly string xivProcInjectFailWithError;
+    [Localized("Error when injecting into FFXIV process, retry later: \n{0}", "注入 FFXIV 进程时发生错误，正在重试：\n{0}")]
+    private static readonly string xivProcInjectException;
 
-        [Localized("Switched to FFXIV process {0}.", "已切换至 FFXIV 进程 {0}。")]
-        private static readonly string xivProcSwitch;
+    [Localized("Failed to connect to FFXIV process {0}:\n{1}", "无法连接至 FFXIV 进程 {0}：\n{1}")]
+    private static readonly string xivProcInjectFailWithError;
 
-        [Localized("Failed to scan server version: {0}", "扫描服务器版本时出现错误：{0}")]
-        private static readonly string getRegionMemoryFail;
+    [Localized("Switched to FFXIV process {0}.", "已切换至 FFXIV 进程 {0}。")]
+    private static readonly string xivProcSwitch;
 
-        // NamazuModule相关
-        [Localized("Empty command.", "指令为空")]
-        private static readonly string emptyCommand;
+    [Localized("Failed to scan server version: {0}", "扫描服务器版本时出现错误：{0}")]
+    private static readonly string getRegionMemoryFail;
 
-        [Localized("Failed to initialize the module {0}: \n{1}", "初始化 {0} 模组失败：\n{1}")]
-        private static readonly string getOffsetsFail;
+    // NamazuModule相关
+    [Localized("Empty command.", "指令为空")] private static readonly string emptyCommand;
 
-        [Localized("Module {0} failed to initialize, please check previous error messages.", 
-                   "{0} 模组初始化失败，请检查更早的错误信息。")]
-        private static readonly string moduleInitFail;
+    [Localized("Failed to initialize the module {0}: \n{1}", "初始化 {0} 模组失败：\n{1}")]
+    private static readonly string getOffsetsFail;
 
-        [Localized("Module {0} was not initialized.", "{0} 模组尚未初始化。")]
-        private static readonly string moduleNotReady;
+    [Localized("Module {0} failed to initialize, please check previous error messages.",
+        "{0} 模组初始化失败，请检查更早的错误信息。")]
+    private static readonly string moduleInitFail;
 
-        [Localized("FFXIV process not found.", "没有对应的 FFXIV 进程")]
-        private static readonly string xivProcNotFound;
+    [Localized("Module {0} was not initialized.", "{0} 模组尚未初始化。")]
+    private static readonly string moduleNotReady;
 
-        // ImportWaymarksForm相关
-        [Localized("Failed to apply waymarks:\n{0}", "应用标点失败：\n{0}")]
-        private static readonly string importWaymarksFormFail;
+    [Localized("FFXIV process not found.", "没有对应的 FFXIV 进程")]
+    private static readonly string xivProcNotFound;
 
-        [Localized("Currently in combat, unable to place public waymarks.", "当前正在战斗中，无法放置公开标点。")]
-        private static readonly string importWaymarksFormInCombat;
+    // ImportWaymarksForm相关
+    [Localized("Failed to apply waymarks:\n{0}", "应用标点失败：\n{0}")]
+    private static readonly string importWaymarksFormFail;
 
-        [Localized("Waymarks applied locally.", "已应用本地标点。")]
-        private static readonly string importWaymarksFormLocal;
+    [Localized("Currently in combat, unable to place public waymarks.", "当前正在战斗中，无法放置公开标点。")]
+    private static readonly string importWaymarksFormInCombat;
 
-        [Localized("Waymarks have been made public.", "已放置公开标点。")]
-        private static readonly string importWaymarksFormPublic;
+    [Localized("Waymarks applied locally.", "已应用本地标点。")]
+    private static readonly string importWaymarksFormLocal;
 
-        // PostNamazuUi相关
-        [Localized("Exception occurred when loading configuration file: \n{0}", "加载配置文件时发生异常：\n{0}")]
-        private static readonly string cfgLoadException;
+    [Localized("Waymarks have been made public.", "已放置公开标点。")]
+    private static readonly string importWaymarksFormPublic;
 
-        [Localized("Configuration has been reset.", "配置已重置。")]
-        private static readonly string cfgReset;
+    // PostNamazuUi相关
+    [Localized("Exception occurred when loading configuration file: \n{0}", "加载配置文件时发生异常：\n{0}")]
+    private static readonly string cfgLoadException;
 
-        [Localized("Waymarker text has been copied to the clipboard.", "标点文本已复制到剪贴板。")]
-        private static readonly string exportWaymarks;
+    [Localized("Configuration has been reset.", "配置已重置。")]
+    private static readonly string cfgReset;
 
-        [Localized("Failed to read existing waymarkers:\n{0}", "读取现有标点失败：\n{0}")]
-        private static readonly string exportWaymarksFail;
+    [Localized("Waymarker text has been copied to the clipboard.", "标点文本已复制到剪贴板。")]
+    private static readonly string exportWaymarks;
 
-        // SigScanner相关
-        [Localized("Relative addressing sigcode ({0}) must contain at least 4 consecutive stars (* * * * ...) and no additional * elsewhere.",
-                   "相对寻址签名码（{0}）必须含至少四个连续星号通配符（* * * * ...），且无额外星号。")]
-        private static readonly string relAddressingFormatError;
+    [Localized("Failed to read existing waymarkers:\n{0}", "读取现有标点失败：\n{0}")]
+    private static readonly string exportWaymarksFail;
 
-        [Localized("Scanned{0} and found {1} memory signatures, unable to determine a unique location.", 
-                   "扫描{0} 发现了 {1} 个内存签名，无法确定唯一位置。")]
-        private static readonly string resultMultiple;
+    // SigScanner相关
+    [Localized("Relative addressing sigcode ({0}) must contain at least 4 consecutive stars (* * * * ...) and no additional * elsewhere.",
+        "相对寻址签名码（{0}）必须含至少四个连续星号通配符（* * * * ...），且无额外星号。")]
+    private static readonly string relAddressingFormatError;
 
-        [Localized("Scanned{0} and did not find the required memory signatures.", "扫描{0} 未找到所需的内存签名。")]
-        private static readonly string resultNone;
-    }
-} 
+    [Localized("Scanned{0} and found {1} memory signatures, unable to determine a unique location.",
+        "扫描{0} 发现了 {1} 个内存签名，无法确定唯一位置。")]
+    private static readonly string resultMultiple;
+
+    [Localized("Scanned{0} and did not find the required memory signatures.", "扫描{0} 未找到所需的内存签名。")]
+    private static readonly string resultNone;
+}

@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
-        <UseWindowsForms>true</UseWindowsForms>
-    </PropertyGroup>
-    <ItemGroup>
-        <ProjectReference Include="..\..\NotACT\NotACT.csproj"/>
-        <ProjectReference Include="..\..\OverlayPlugin.Core\OverlayPlugin.Core.csproj"/>
-    </ItemGroup>
-    <ItemGroup>
-        <Reference Include="Newtonsoft.Json">
-            <HintPath>$(DalamudLibPath)Newtonsoft.Json.dll</HintPath>
-            <Private>false</Private>
-        </Reference>
-    </ItemGroup>
+  <PropertyGroup>
+    <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\NotACT\NotACT.csproj"/>
+    <ProjectReference Include="..\..\OverlayPlugin.Core\OverlayPlugin.Core.csproj"/>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(DalamudLibPath)Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
 </Project>
