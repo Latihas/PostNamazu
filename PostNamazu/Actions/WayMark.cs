@@ -5,7 +5,6 @@ using PostNamazu.Common.Localization;
 using PostNamazu.Models;
 using System;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Triggernometry.PluginBridges.BridgeNamazu;

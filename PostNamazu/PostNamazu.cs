@@ -319,7 +319,7 @@ namespace PostNamazu
                 {
                     0 or 1 or 2 or 3 => false,
                     4 => true,
-                    _ => null,
+                    _ => null
                 };
                 if (result.HasValue)
                 {

@@ -1,15 +1,11 @@
 ﻿using System.Runtime.InteropServices;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 using Triggernometry.PluginBridges.BridgeNamazu;
 using System;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using FFXIVClientStructs.FFXIV.Client.Game;
-using FFXIVClientStructs.FFXIV.Client.UI;
 using Newtonsoft.Json;
 using PostNamazu.Attributes;
-using PostNamazu.Common;
 using PostNamazu.Common.Localization;
 using PostNamazu.Models;
 

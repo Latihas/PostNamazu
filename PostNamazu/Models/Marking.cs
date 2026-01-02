@@ -34,6 +34,6 @@ namespace PostNamazu.Models
         triangle,
         attack6,
         attack7,
-        attack8,
+        attack8
     }
 }

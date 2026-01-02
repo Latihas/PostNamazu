@@ -476,7 +476,7 @@ namespace PostNamazu.Common
                     {
                         "*" or "**" => -2,
                         "?" or "??" => -1,
-                        _ => byte.Parse(s, NumberStyles.AllowHexSpecifier),
+                        _ => byte.Parse(s, NumberStyles.AllowHexSpecifier)
                     };
                 }).ToList();
 

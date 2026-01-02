@@ -17,7 +17,7 @@ namespace PostNamazu.Models
                 X = Actions.WayMark.IntEncode(value),
                 Position = Marker.Position with {
                     X = value
-                },
+                }
             };
         }
 
@@ -31,7 +31,7 @@ namespace PostNamazu.Models
                 Y = Actions.WayMark.IntEncode(value),
                 Position = Marker.Position with {
                     Y = value
-                },
+                }
             };
         }
 
@@ -44,7 +44,7 @@ namespace PostNamazu.Models
                 Z = Actions.WayMark.IntEncode(value),
                 Position = Marker.Position with {
                     Z = value
-                },
+                }
             };
         }
 
