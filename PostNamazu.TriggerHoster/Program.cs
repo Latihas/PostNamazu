@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Triggernometry;
 using Triggernometry.Core;
+using TriggernometryProxy;
 
 namespace PostNamazu.TriggerHoster;
 
