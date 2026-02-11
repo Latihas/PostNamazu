@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Triggernometry;
 using Triggernometry.Core;
 using TriggernometryProxy;
 
