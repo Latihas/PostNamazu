@@ -8,10 +8,10 @@ namespace PostNamazu.Models;
 ///     Waymark Model prepresents the data behind a Waymark.
 /// </summary>
 public class Waymark : INotifyPropertyChanged {
-	/// <summary>
-	///     X Coordinate of Waymark.
-	/// </summary>
-	public float X
+    /// <summary>
+    ///     X Coordinate of Waymark.
+    /// </summary>
+    public float X
     {
         get => Marker.Position.X;
         set => Marker = Marker with {
@@ -23,10 +23,10 @@ public class Waymark : INotifyPropertyChanged {
     }
 
 
-	/// <summary>
-	///     Y Coordinate of Waymark.
-	/// </summary>
-	public float Y
+    /// <summary>
+    ///     Y Coordinate of Waymark.
+    /// </summary>
+    public float Y
     {
         get => Marker.Position.Y;
         set => Marker = Marker with {
@@ -37,10 +37,10 @@ public class Waymark : INotifyPropertyChanged {
         };
     }
 
-	/// <summary>
-	///     Z Coordinate of Waymark.
-	/// </summary>
-	public float Z
+    /// <summary>
+    ///     Z Coordinate of Waymark.
+    /// </summary>
+    public float Z
     {
         get => Marker.Position.Z;
         set => Marker = Marker with {
@@ -51,15 +51,15 @@ public class Waymark : INotifyPropertyChanged {
         };
     }
 
-	/// <summary>
-	///     ID of Waymark.
-	/// </summary>
-	public WaymarkID ID { get; set; }
+    /// <summary>
+    ///     ID of Waymark.
+    /// </summary>
+    public WaymarkID ID { get; set; }
 
-	/// <summary>
-	///     Active state of the Waymark.
-	/// </summary>
-	public bool Active
+    /// <summary>
+    ///     Active state of the Waymark.
+    /// </summary>
+    public bool Active
     {
         get => Marker.Active;
         set => Marker = Marker with {
