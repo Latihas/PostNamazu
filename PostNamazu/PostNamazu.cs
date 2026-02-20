@@ -303,13 +303,13 @@ public class PostNamazu : IActPluginV1 {
     }
 
 
-    private void LogRegion() {
-        if (!_isCN.HasValue) return;
-        PluginUi.Log(_isCN.Value
-            ? L.Get("PostNamazu/xivDetectRegionCN")
-            : L.Get("PostNamazu/xivDetectRegionGlobal")
-        );
-    }
+    // private void LogRegion() {
+    //     if (!_isCN.HasValue) return;
+    //     PluginUi.Log(_isCN.Value
+    //         ? L.Get("PostNamazu/xivDetectRegionCN")
+    //         : L.Get("PostNamazu/xivDetectRegionGlobal")
+    //     );
+    // }
 
     #endregion
 
