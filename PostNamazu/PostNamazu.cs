@@ -91,7 +91,7 @@ public class PostNamazu : IActPluginV1 {
 
         //目前解析插件有bug，在特定情况下无法正常触发ProcessChanged事件。因此只能通过后台线程实时监控
         //FFXIV_ACT_Plugin.DataSubscription.ProcessChanged += ProcessChanged;
-        _processManager.StartProcessMonitoring();
+        
 
         if (PluginUi.AutoStart)
             ServerStart();
@@ -99,6 +99,7 @@ public class PostNamazu : IActPluginV1 {
         PluginUi.ButtonStop.Click += ServerStop;
 
         InitializeActions();
+        _processManager.StartProcessMonitoring();
         _integrationManager.InitializeIntegrations();
 
         // Assembly.Load("GreyMagic"); // 直接加载而非首次调用时延迟加载，防止没开启游戏而没调用 GreyMagic 初始化 Memory 时其他插件找不到 GreyMagic

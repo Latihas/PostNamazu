@@ -39,7 +39,7 @@ public class ProcessManager {
     /// </summary>
     /// <returns>FFXIV进程或null</returns>
     public Process GetFFXIVProcess() {
-        if (_plugin.FFXIV_ACT_Plugin?.DataRepository == null) return null;
+        // if (_plugin.FFXIV_ACT_Plugin?.DataRepository == null) return null;
         return _plugin.FFXIV_ACT_Plugin.DataRepository.GetCurrentFFXIVProcess();
     }
 
