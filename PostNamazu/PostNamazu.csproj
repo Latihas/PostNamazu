@@ -22,18 +22,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadata Include="Connected Services\"/>
+    <WCFMetadata Include="Connected Services/"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PostNamazu.OverlayHoster\PostNamazu.OverlayHoster.csproj">
+    <ProjectReference Include="../PostNamazu.OverlayHoster/PostNamazu.OverlayHoster.csproj">
       <Name>PostNamazu.OverlayHoster</Name>
       <CopyLocal>True</CopyLocal>
     </ProjectReference>
-    <ProjectReference Include="..\PostNamazu.TriggerHoster\PostNamazu.TriggerHoster.csproj">
+    <ProjectReference Include="../PostNamazu.TriggerHoster/PostNamazu.TriggerHoster.csproj">
       <Name>PostNamazu.TriggerHoster</Name>
       <CopyLocal>True</CopyLocal>
     </ProjectReference>
-    <ProjectReference Include="../..\OverlayPlugin.Core\OverlayPlugin.Core.csproj"/>
+    <ProjectReference Include="../../OverlayPlugin.Core/OverlayPlugin.Core.csproj"/>
   </ItemGroup>
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == ''">
     <DalamudLibPath>$(appdata)/XIVLauncherCN/addon/Hooks/dev</DalamudLibPath>
