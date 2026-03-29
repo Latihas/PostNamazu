@@ -7,13 +7,13 @@ namespace PostNamazu.Common.Localization;
 /// </summary>
 [AttributeUsage(AttributeTargets.Field)]
 public class LocalizedAttribute : Attribute {
-    public string English { get; set; }
-    public string Chinese { get; set; }
+	public string English { get; set; }
+	public string Chinese { get; set; }
 
-    public LocalizedAttribute(string english, string chinese) {
-        English = english;
-        Chinese = chinese;
-    }
+	public LocalizedAttribute(string english, string chinese) {
+		English = english;
+		Chinese = chinese;
+	}
 }
 
 /// <summary>
@@ -21,9 +21,9 @@ public class LocalizedAttribute : Attribute {
 /// </summary>
 [AttributeUsage(AttributeTargets.Class)]
 public class LocalizationProviderAttribute : Attribute {
-    public string Prefix { get; set; }
+	public string Prefix { get; set; }
 
-    public LocalizationProviderAttribute(string prefix = null) {
-        Prefix = prefix;
-    }
+	public LocalizationProviderAttribute(string prefix = null) {
+		Prefix = prefix;
+	}
 }

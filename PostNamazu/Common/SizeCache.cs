@@ -12,136 +12,130 @@ namespace PostNamazu.Common;
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public static class SizeCache<T> where T : struct {
-    /// <summary> The size of the Type </summary>
-    public static readonly int Size;
+	/// <summary> The size of the Type </summary>
+	public static readonly int Size;
 
-    /// <summary> The real, underlying type. </summary>
-    public static readonly Type Type;
+	/// <summary> The real, underlying type. </summary>
+	public static readonly Type Type;
 
-    /// <summary> True if this type requires the Marshaler to map variables. (No direct pointer dereferencing) </summary>
-    public static readonly bool TypeRequiresMarshal;
+	/// <summary> True if this type requires the Marshaler to map variables. (No direct pointer dereferencing) </summary>
+	public static readonly bool TypeRequiresMarshal;
 
-    private static int[] _fieldsizes;
+	private static int[] _fieldsizes;
 
-    public static int[] FieldSizes
-    {
-        get
-        {
-            if (_fieldsizes != null)
-                return _fieldsizes;
+	public static int[] FieldSizes {
+		get {
+			if (_fieldsizes != null)
+				return _fieldsizes;
 
 
-            var fields = Type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-            _fieldsizes = new int[fields.Length];
-            var i = 0;
-            foreach (var xfield in fields) {
-                var attr = xfield.GetCustomAttributes(typeof(FixedBufferAttribute), false);
+			var fields = Type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+			_fieldsizes = new int[fields.Length];
+			var i = 0;
+			foreach (var xfield in fields) {
+				var attr = xfield.GetCustomAttributes(typeof(FixedBufferAttribute), false);
 
-                if (attr.Length > 0) {
-                    var fba = (FixedBufferAttribute)attr[0];
-                    var size = GetSizeOf(fba.ElementType) * fba.Length;
-                    _fieldsizes[i] = size;
-                }
-                else {
-                    var size = GetSizeOf(xfield.FieldType);
-                    _fieldsizes[i] = size;
-                }
+				if (attr.Length > 0) {
+					var fba = (FixedBufferAttribute)attr[0];
+					var size = GetSizeOf(fba.ElementType) * fba.Length;
+					_fieldsizes[i] = size;
+				} else {
+					var size = GetSizeOf(xfield.FieldType);
+					_fieldsizes[i] = size;
+				}
 
-                i++;
-            }
+				i++;
+			}
 
 
-            return _fieldsizes;
-        }
-    }
+			return _fieldsizes;
+		}
+	}
 
-    public static readonly GetUnsafePtrDelegate GetUnsafePtr;
+	public static readonly GetUnsafePtrDelegate GetUnsafePtr;
 
-    static SizeCache() {
-        Type = typeof(T);
-        // Bools = 1 char.
-        if (typeof(T) == typeof(bool)) {
-            Size = 1;
-        }
-        else if (typeof(T).IsEnum) {
-            Type = typeof(T).GetEnumUnderlyingType();
-            Size = GetSizeOf(Type);
-        }
-        else {
-            Size = GetSizeOf(Type);
-        }
+	static SizeCache() {
+		Type = typeof(T);
+		// Bools = 1 char.
+		if (typeof(T) == typeof(bool)) {
+			Size = 1;
+		} else if (typeof(T).IsEnum) {
+			Type = typeof(T).GetEnumUnderlyingType();
+			Size = GetSizeOf(Type);
+		} else {
+			Size = GetSizeOf(Type);
+		}
 
-        TypeRequiresMarshal = GetRequiresMarshal(Type);
+		TypeRequiresMarshal = GetRequiresMarshal(Type);
 
-        // Generate a method to get the address of a generic type. We'll be using this for RtlMoveMemory later for much faster structure reads.
-        var method = new DynamicMethod(string.Format("GetPinnedPtr<{0}>", typeof(T).FullName.Replace(".", "<>")),
-            typeof(void*),
-            [typeof(T).MakeByRefType()],
-            typeof(SizeCache<>).Module);
+		// Generate a method to get the address of a generic type. We'll be using this for RtlMoveMemory later for much faster structure reads.
+		var method = new DynamicMethod(string.Format("GetPinnedPtr<{0}>", typeof(T).FullName.Replace(".", "<>")),
+			typeof(void*),
+			[typeof(T).MakeByRefType()],
+			typeof(SizeCache<>).Module);
 
-        var generator = method.GetILGenerator();
+		var generator = method.GetILGenerator();
 
-        // ldarg 0
-        generator.Emit(OpCodes.Ldarg_0);
-        // (IntPtr)arg0
-        generator.Emit(OpCodes.Conv_U);
-        // ret arg0
-        generator.Emit(OpCodes.Ret);
-        GetUnsafePtr = (GetUnsafePtrDelegate)method.CreateDelegate(typeof(GetUnsafePtrDelegate));
-    }
+		// ldarg 0
+		generator.Emit(OpCodes.Ldarg_0);
+		// (IntPtr)arg0
+		generator.Emit(OpCodes.Conv_U);
+		// ret arg0
+		generator.Emit(OpCodes.Ret);
+		GetUnsafePtr = (GetUnsafePtrDelegate)method.CreateDelegate(typeof(GetUnsafePtrDelegate));
+	}
 
-    private static int GetSizeOf(Type t) {
-        try {
-            // Try letting the marshaler handle getting the size.
-            // It can *sometimes* do it correctly
-            // If it can't, fall back to our own methods.
-            var o = Activator.CreateInstance(t);
-            return Marshal.SizeOf(o);
-        }
-        catch (Exception) {
-            var totalSize = 0;
-            var fields = t.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+	private static int GetSizeOf(Type t) {
+		try {
+			// Try letting the marshaler handle getting the size.
+			// It can *sometimes* do it correctly
+			// If it can't, fall back to our own methods.
+			var o = Activator.CreateInstance(t);
+			return Marshal.SizeOf(o);
+		} catch (Exception) {
+			var totalSize = 0;
+			var fields = t.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
-            foreach (var field in fields) {
-                var attr = field.GetCustomAttributes(typeof(FixedBufferAttribute), false);
+			foreach (var field in fields) {
+				var attr = field.GetCustomAttributes(typeof(FixedBufferAttribute), false);
 
-                if (attr.Length > 0) {
-                    var fba = (FixedBufferAttribute)attr[0];
-                    totalSize += GetSizeOf(fba.ElementType) * fba.Length;
-                    continue;
-                }
+				if (attr.Length > 0) {
+					var fba = (FixedBufferAttribute)attr[0];
+					totalSize += GetSizeOf(fba.ElementType) * fba.Length;
+					continue;
+				}
 
-                totalSize += GetSizeOf(field.FieldType);
-            }
-            return totalSize;
-        }
-    }
+				totalSize += GetSizeOf(field.FieldType);
+			}
+			return totalSize;
+		}
+	}
 
-    private static bool GetRequiresMarshal(Type t) {
-        var fields = t.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-        foreach (var field in fields) {
-            var requires = field.GetCustomAttributes(typeof(MarshalAsAttribute), true).Length != 0;
+	private static bool GetRequiresMarshal(Type t) {
+		var fields = t.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+		foreach (var field in fields) {
+			var requires = field.GetCustomAttributes(typeof(MarshalAsAttribute), true).Length != 0;
 
-            if (requires) {
-                return true;
-            }
+			if (requires) {
+				return true;
+			}
 
-            if (t == typeof(IntPtr)) {
-                continue;
-            }
+			if (t == typeof(IntPtr)) {
+				continue;
+			}
 
-            if (Type.GetTypeCode(t) == TypeCode.Object) {
-                requires |= GetRequiresMarshal(field.FieldType);
-            }
+			if (Type.GetTypeCode(t) == TypeCode.Object) {
+				requires |= GetRequiresMarshal(field.FieldType);
+			}
 
-            return requires;
-        }
-        return false;
-    }
+			return requires;
+		}
+		return false;
+	}
 
-    #region Nested type: GetUnsafePtrDelegate
+	#region Nested type: GetUnsafePtrDelegate
 
-    public unsafe delegate void* GetUnsafePtrDelegate(ref T value);
+	public unsafe delegate void* GetUnsafePtrDelegate(ref T value);
 
-    #endregion
+	#endregion
 }
