@@ -10,8 +10,8 @@
       },
       "Microsoft.Extensions.ObjectPool": {
         "type": "Transitive",
-        "resolved": "10.0.5",
-        "contentHash": "91t1kPt6F+1cTJ4dZFY89BopLr1JyGlZ2pROIkIuyE28jUXhdelOzn22UwvNk8EwW/9x8D7GXyLqiMJShgIGhQ=="
+        "resolved": "10.0.7",
+        "contentHash": "flWxDEhfc7fueGP+mvNp8Avrm5YcZVfcpyI96MkJEnGu+1X/eH8XcHfx6deBAdCU3ZPpmQ7AVp/9t4aikKP07w=="
       },
       "NetCoreServer": {
         "type": "Transitive",
@@ -41,7 +41,7 @@
         "dependencies": {
           "Machina": "[2.3.1.3, )",
           "Machina.FFXIV": "[2.4.5.7, )",
-          "Microsoft.Extensions.ObjectPool": "[*, )",
+          "Microsoft.Extensions.ObjectPool": "[10.0.7, )",
           "NetCoreServer": "[*, )",
           "OverlayPlugin.Common": "[1.0.0, )"
         }
