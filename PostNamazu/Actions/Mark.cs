@@ -62,7 +62,7 @@ internal class Mark : NamazuModule {
 			};
 			return actor;
 		}
-		var combatants = FFXIV_ACT_Plugin.DataRepository.GetCombatantList().Where(i => !string.IsNullOrEmpty(i.Name) && i.ID != 0xE0000000);
+		var combatants = FFXIV_ACT_Plugin.DataRepository.GetCombatantList().Where(i => !string.IsNullOrEmpty(i.Name) && i.ID != 0xE0000000).ToList();
 		return combatants.FirstOrDefault(i => i.ID == id)
 		       ?? combatants.FirstOrDefault(i => i.Name == name)
 		       ?? throw new Exception(L.Get("Mark/ActorNotFound", id?.ToString("X8") ?? name ?? "(null)"));
