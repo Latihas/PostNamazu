@@ -34,7 +34,7 @@ internal class NormalCommand : NamazuModule {
 	}
 
 	private void CheckChannel(ref string command) {
-		if (!command.StartsWith("/")) {
+		if (!command.StartsWith('/')) {
 			throw new ArgumentException(L.Get("NormalCommand/NoChannelError", Constants.CurrentChannelPrefix));
 		}
 		if (command.StartsWith(Constants.CurrentChannelPrefix)) {

@@ -10,19 +10,19 @@ namespace PostNamazu;
 
 public class ImportWaymarksForm : Form {
 	private static string _prevData;
-	private static string _defaultData = @"{
-    ""A"": {""X"": 100, ""Z"":  90, ""Y"": 0, ""Active"": true},
-    ""B"": {""X"": 110, ""Z"": 100, ""Y"": 0, ""Active"": true},
-    ""C"": {""X"": 100, ""Z"": 110, ""Y"": 0, ""Active"": true},
-    ""D"": {""X"":  90, ""Z"": 100, ""Y"": 0, ""Active"": true},
-    ""One"":   {},
-    ""Two"":   {},
-    ""Three"": {},
-    ""Four"":  {}
-}";
-	private Panel mainPanel;
-	private GroupBox grpMain;
-	private TableLayoutPanel mainTable;
+	private const string _defaultData =
+		"""
+		{
+		    "A": {"X": 100, "Z":  90, "Y": 0, "Active": true},
+		    "B": {"X": 110, "Z": 100, "Y": 0, "Active": true},
+		    "C": {"X": 100, "Z": 110, "Y": 0, "Active": true},
+		    "D": {"X":  90, "Z": 100, "Y": 0, "Active": true},
+		    "One":   {},
+		    "Two":   {},
+		    "Three": {},
+		    "Four":  {}
+		}
+		""";
 	public TextBox TxtWaymarksData;
 	public Button btnDefault;
 	public Button btnPlace;
@@ -32,20 +32,20 @@ public class ImportWaymarksForm : Form {
 
 	public ImportWaymarksForm() {
 		Text = L.Get("PostNamazu/importWaymarksForm");
-		// Font = PostNamazu.Plugin.PluginUI.Font;              // System.Drawing.Font?
 
-		mainPanel = new Panel {
+		// Font = PostNamazu.Plugin.PluginUI.Font;              // System.Drawing.Font?
+		var mainPanel1 = new Panel {
 			AutoSize = true,
 			Dock = DockStyle.Fill,
 			Padding = new Padding(20)
 		};
-		grpMain = new GroupBox {
+		var grpMain1 = new GroupBox {
 			AutoSize = true,
 			Dock = DockStyle.Fill,
 			Padding = new Padding(20)
 		};
-		grpMain.Text = L.Get("PostNamazu/importWaymarksFormGrpMain");
-		mainTable = new TableLayoutPanel {
+		grpMain1.Text = L.Get("PostNamazu/importWaymarksFormGrpMain");
+		var mainTable1 = new TableLayoutPanel {
 			AutoSize = true,
 			Dock = DockStyle.Fill
 		};
@@ -70,22 +70,22 @@ public class ImportWaymarksForm : Form {
 		btnPublic = MyButton(nameof(btnPublic));
 		btnPublic.Click += btnPublic_Click;
 
-		Controls.Add(mainPanel);
-		mainPanel.Controls.Add(grpMain);
-		grpMain.Controls.Add(mainTable);
+		Controls.Add(mainPanel1);
+		mainPanel1.Controls.Add(grpMain1);
+		grpMain1.Controls.Add(mainTable1);
 
-		mainTable.RowCount = 2;
-		mainTable.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-		mainTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-		mainTable.ColumnCount = 3;
-		mainTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33));
-		mainTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33));
-		mainTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33));
-		mainTable.Controls.Add(TxtWaymarksData, 0, 0);
-		mainTable.SetColumnSpan(TxtWaymarksData, 3);
-		mainTable.Controls.Add(btnDefault, 0, 1);
-		mainTable.Controls.Add(btnPlace, 1, 1);
-		mainTable.Controls.Add(btnPublic, 2, 1);
+		mainTable1.RowCount = 2;
+		mainTable1.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+		mainTable1.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+		mainTable1.ColumnCount = 3;
+		mainTable1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33));
+		mainTable1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33));
+		mainTable1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33));
+		mainTable1.Controls.Add(TxtWaymarksData, 0, 0);
+		mainTable1.SetColumnSpan(TxtWaymarksData, 3);
+		mainTable1.Controls.Add(btnDefault, 0, 1);
+		mainTable1.Controls.Add(btnPlace, 1, 1);
+		mainTable1.Controls.Add(btnPublic, 2, 1);
 
 		FormClosed += (_, _) => {
 			if (!string.IsNullOrWhiteSpace(TxtWaymarksData.Text)) {
@@ -112,11 +112,11 @@ public class ImportWaymarksForm : Form {
 		return btn;
 	}
 
-	private void btnDefault_Click(object sender, EventArgs e) {
+	private void btnDefault_Click(object? sender, EventArgs e) {
 		TxtWaymarksData.Text = _defaultData;
 	}
 
-	private void btnPlace_Click(object sender, EventArgs e) {
+	private void btnPlace_Click(object? sender, EventArgs e) {
 		try {
 			var waymarks = JsonConvert.DeserializeObject<WayMarks>(TxtWaymarksData.Text);
 			WaymarkModule.DoWaymarks(waymarks);
@@ -126,7 +126,7 @@ public class ImportWaymarksForm : Form {
 		}
 	}
 
-	private void btnPublic_Click(object sender, EventArgs e) {
+	private void btnPublic_Click(object? sender, EventArgs e) {
 		try {
 			if (WaymarkModule.GetInCombat()) {
 				MessageBox.Show(L.Get("PostNamazu/importWaymarksFormInCombat"), "PostNamazu", MessageBoxButtons.OK, MessageBoxIcon.Warning);

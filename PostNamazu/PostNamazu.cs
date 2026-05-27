@@ -24,7 +24,7 @@ public class PostNamazu : IActPluginV1 {
 	private ProcessManager _processManager;
 	private PluginIntegrationManager _integrationManager;
 
-	private HttpServer _httpServer;
+	private HttpServer? _httpServer;
 
 	internal Process FFXIV;
 	internal FFXIV_ACT_Plugin.FFXIV_ACT_Plugin FFXIV_ACT_Plugin;
@@ -63,7 +63,7 @@ public class PostNamazu : IActPluginV1 {
 	internal void SetState(StateEnum value) {
 		_state = value;
 #if DEBUG
-            PluginUi?.Log($"插件状态变更：{value}");
+		PluginUi?.Log($"插件状态变更：{value}");
 #endif
 	}
 
@@ -132,7 +132,7 @@ public class PostNamazu : IActPluginV1 {
 	public void InitializeActions() {
 		foreach (var t in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsSubclassOf(typeof(NamazuModule)) && !t.IsAbstract)) {
 #if DEBUG
-                PluginUi.Log($"Initalizing Module: {t.Name}");
+			PluginUi.Log($"Initalizing Module: {t.Name}");
 #endif
 			var module = (NamazuModule)Activator.CreateInstance(t);
 			Modules.Add(module);
@@ -143,7 +143,7 @@ public class PostNamazu : IActPluginV1 {
 				foreach (var command in action.GetCustomAttributes<CommandAttribute>()) {
 					SetAction(command.Command, handlerDelegate);
 #if DEBUG
-                        PluginUi.Log($"{action.Name}@{command.Command}");
+					PluginUi.Log($"{action.Name}@{command.Command}");
 #endif
 				}
 			}
@@ -159,7 +159,7 @@ public class PostNamazu : IActPluginV1 {
 	/// </summary>
 	internal string[] GetCommandKeys() => CmdBind.Keys.ToArray();
 
-	public void ServerStart(object sender = null, EventArgs e = null) {
+	public void ServerStart(object? sender = null, EventArgs? e = null) {
 		try {
 			_httpServer = new HttpServer((int)PluginUi.TextPort.Value) {
 				PostNamazuDelegate = DoAction
@@ -174,7 +174,7 @@ public class PostNamazu : IActPluginV1 {
 		}
 	}
 
-	public void ServerStop(object sender = null, EventArgs e = null) {
+	public void ServerStop(object? sender = null, EventArgs? e = null) {
 		if (_httpServer != null) {
 			_httpServer.Stop();
 			_httpServer.PostNamazuDelegate = null;
@@ -191,7 +191,7 @@ public class PostNamazu : IActPluginV1 {
 	/// </summary>
 	/// <param name="ex"></param>
 	private void OnException(Exception ex) {
-		ExceptionHandler.HandleHttpServerException(ex, _httpServer.Port, PluginUi,
+		ExceptionHandler.HandleHttpServerException(ex, _httpServer?.Port ?? -1, PluginUi,
 			() => PluginUi.ButtonStart.Enabled = true,
 			() => PluginUi.ButtonStop.Enabled = false);
 	}

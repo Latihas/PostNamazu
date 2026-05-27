@@ -34,8 +34,8 @@ public partial class PostNamazuUi : UserControl {
 		flowLayoutActions.Controls.Add(checkAction);
 	}
 
-	private void CheckBoxActions_CheckedChanged(object sender, EventArgs e) {
-		var checkbox = (CheckBox)sender;
+	private void CheckBoxActions_CheckedChanged(object? sender, EventArgs e) {
+		var checkbox = (CheckBox)sender!;
 		ActionEnabled[checkbox.Text] = checkbox.Checked;
 	}
 
@@ -78,7 +78,7 @@ public partial class PostNamazuUi : UserControl {
 	private int prevTipIdx = -1;
 
 	private void LstMessages_MouseMove(object sender, MouseEventArgs e) {
-		var lb = sender as ListBox;
+		var lb = (ListBox)sender ;
 		var index = lb.IndexFromPoint(e.Location);
 		if (index != prevTipIdx) {
 			if (index != -1)

@@ -16,7 +16,7 @@ using Triggernometry.PluginBridges.BridgeNamazu;
 namespace PostNamazu.Actions;
 
 public class WayMark : NamazuModule {
-	private WayMarks tempMarks; //暂存场地标点
+	private WayMarks? tempMarks; //暂存场地标点
 
 	private delegate IntPtr ExecuteCommandDelegate(int a1, int a2, int a3, int a4, int a5);
 
@@ -196,7 +196,7 @@ public class WayMark : NamazuModule {
 	/// </summary>
 	/// <param name="waymark">标点</param>
 	/// <param name="id">ID</param>
-	private unsafe void WriteWaymark(Waymark waymark, int id = -1) {
+	private unsafe void WriteWaymark(Waymark? waymark, int id = -1) {
 		if (waymark == null)
 			return;
 
@@ -212,7 +212,7 @@ public class WayMark : NamazuModule {
 
 	/// <summary> 将指定标点标记为公开标点。 </summary>
 	/// <param name="waymarks">标点，传入 null 时清空标点，单个标点为 null 时忽略。</param>
-	public void Public(WayMarks waymarks) {
+	public void Public(WayMarks? waymarks) {
 		if (waymarks == null || waymarks.All(waymark => waymark?.Active == false)) {
 			// clear all
 			ExecuteCommand(313);
