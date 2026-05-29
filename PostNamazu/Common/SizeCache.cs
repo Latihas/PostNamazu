@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -11,62 +12,29 @@ namespace PostNamazu.Common;
 ///     Also provides a way to get the pointer of a generic type (useful for fast memcpy and other operations)
 /// </summary>
 /// <typeparam name="T"></typeparam>
+[SuppressMessage("ReSharper", "StaticMemberInGenericType")]
 public static class SizeCache<T> where T : struct {
 	/// <summary> The size of the Type </summary>
 	public static readonly int Size;
 
-	/// <summary> The real, underlying type. </summary>
-	public static readonly Type Type;
-
 	/// <summary> True if this type requires the Marshaler to map variables. (No direct pointer dereferencing) </summary>
 	public static readonly bool TypeRequiresMarshal;
 
-	private static int[] _fieldsizes;
-
-	public static int[] FieldSizes {
-		get {
-			if (_fieldsizes != null)
-				return _fieldsizes;
-
-
-			var fields = Type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-			_fieldsizes = new int[fields.Length];
-			var i = 0;
-			foreach (var xfield in fields) {
-				var attr = xfield.GetCustomAttributes(typeof(FixedBufferAttribute), false);
-
-				if (attr.Length > 0) {
-					var fba = (FixedBufferAttribute)attr[0];
-					var size = GetSizeOf(fba.ElementType) * fba.Length;
-					_fieldsizes[i] = size;
-				} else {
-					var size = GetSizeOf(xfield.FieldType);
-					_fieldsizes[i] = size;
-				}
-
-				i++;
-			}
-
-
-			return _fieldsizes;
-		}
-	}
-
-	public static readonly GetUnsafePtrDelegate GetUnsafePtr;
+	internal static readonly GetUnsafePtrDelegate GetUnsafePtr;
 
 	static SizeCache() {
-		Type = typeof(T);
+		var type = typeof(T);
 		// Bools = 1 char.
 		if (typeof(T) == typeof(bool)) {
 			Size = 1;
 		} else if (typeof(T).IsEnum) {
-			Type = typeof(T).GetEnumUnderlyingType();
-			Size = GetSizeOf(Type);
+			type = typeof(T).GetEnumUnderlyingType();
+			Size = GetSizeOf(type);
 		} else {
-			Size = GetSizeOf(Type);
+			Size = GetSizeOf(type);
 		}
 
-		TypeRequiresMarshal = GetRequiresMarshal(Type);
+		TypeRequiresMarshal = GetRequiresMarshal(type);
 
 		// Generate a method to get the address of a generic type. We'll be using this for RtlMoveMemory later for much faster structure reads.
 		var method = new DynamicMethod($"GetPinnedPtr<{typeof(T).FullName?.Replace(".", "<>")}>",
@@ -91,8 +59,8 @@ public static class SizeCache<T> where T : struct {
 			// It can *sometimes* do it correctly
 			// If it can't, fall back to our own methods.
 			var o = Activator.CreateInstance(t);
-			return Marshal.SizeOf(o);
-		} catch (Exception) {
+			return Marshal.SizeOf(o!);
+		} catch {
 			var totalSize = 0;
 			var fields = t.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -133,9 +101,6 @@ public static class SizeCache<T> where T : struct {
 		return false;
 	}
 
-	#region Nested type: GetUnsafePtrDelegate
 
-	public unsafe delegate void* GetUnsafePtrDelegate(ref T value);
-
-	#endregion
+	internal unsafe delegate void* GetUnsafePtrDelegate(ref T value);
 }

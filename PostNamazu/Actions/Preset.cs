@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using FFXIVClientStructs.FFXIV.Client.Game;
@@ -9,13 +10,14 @@ using PostNamazu.Common.Localization;
 using PostNamazu.Models;
 using Triggernometry.PluginBridges.BridgeNamazu;
 
-#pragma warning disable CS0649 // 从未对字段赋值，字段将一直保持其默认值
-
 namespace PostNamazu.Actions;
 
+[SuppressMessage("Performance", "CS0649")]
+[SuppressMessage("ReSharper", "UnusedType.Global")]
 internal partial class Preset : NamazuModule {
 	// 本地化字符串定义
 	[LocalizationProvider("Preset")]
+	[SuppressMessage("ReSharper", "UnusedType.Local")]
 	private static class Localizations {
 		[Localized("Preset and current map ID are both invalid, loading preset failed.", "预设与当前的地图 ID 均不合法，加载预设失败。")]
 		public static readonly string MapIdIllegal;
@@ -32,7 +34,7 @@ internal partial class Preset : NamazuModule {
 			Log(L.Get("Preset/MapIdIllegal"));
 			return;
 		}
-		var match = SlotRegex().Match(waymarks.Name.Trim());
+		var match = SlotRegex().Match(waymarks.Name == null ? "" : waymarks.Name.Trim());
 		ConstructGamePreset(match.Success && int.TryParse(match.Groups[1].Value, out var slotNum) && slotNum is > 0 and <= 30 ? slotNum - 1 : 0, waymarks);
 	}
 
@@ -44,23 +46,20 @@ internal partial class Preset : NamazuModule {
 	[Command("DoInsertPreset")]
 	public void DoInsertPreset(string waymarksStr) {
 		CheckBeforeExecution(waymarksStr);
-
-		switch (waymarksStr.ToLower()) {
-			default:
-				var waymarks = JsonConvert.DeserializeObject<WayMarks>(waymarksStr);
-				if (waymarks.Log) {
-					WayMarks.SetWaymarkIds(waymarks);
-					PluginUI.Log("Preset: " + waymarks);
-				}
-				DoInsertPreset(waymarks);
-				break;
+		var waymarks = JsonConvert.DeserializeObject<WayMarks>(waymarksStr.ToLower());
+		if (waymarks == null) return;
+		if (waymarks.Log) {
+			WayMarks.SetWaymarkIds(waymarks);
+			PluginUI.Log("Preset: " + waymarks);
 		}
+		DoInsertPreset(waymarks);
 	}
 
 	/// <summary>
 	///     构造预设结构，从0号头子的PPR抄来的
 	/// </summary>
-	/// <param name="waymark">标点</param>
+	/// <param name="index"></param>
+	/// <param name="waymarks">标点</param>
 	/// <returns>byte[]预设结构</returns>
 	public unsafe void ConstructGamePreset(int index, WayMarks waymarks) {
 		var newPreset = new FieldMarkerPreset();

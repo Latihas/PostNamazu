@@ -9,44 +9,20 @@ using PostNamazu.Common.Localization;
 namespace PostNamazu.Common;
 
 public class SigScanner {
-	//private Process process;
+	private readonly MemHelper _memhelper;
+	private readonly uint CodeBase;
+	private readonly uint _dataLength;
+	private readonly byte[] _data;
+	private readonly IntPtr _baseAddress;
 
-	//private readonly ILogger _logger;
-
-	public MemHelper _memhelper;
-	public uint SizeOfCode;
-	public uint CodeBase;
-	public uint _dataLength;
-	public byte[] _data;
-	public IntPtr _baseAddress;
-
-	/// <summary>
-	///     The base address of the .text section search area.
-	/// </summary>
-	public IntPtr TextSectionBase => new(_baseAddress.ToInt64() + TextSectionOffset);
-	/// <summary>
-	///     The offset of the .text section from the base of the module.
-	/// </summary>
-	public long TextSectionOffset { get; private set; }
-	/// <summary>
-	///     The size of the text section.
-	/// </summary>
-	public int TextSectionSize { get; private set; }
-
-	/// <summary>
-	///     The base address of the .data section search area.
-	/// </summary>
-	public IntPtr DataSectionBase => new(_baseAddress.ToInt64() + DataSectionOffset);
 	/// <summary>
 	///     The offset of the .data section from the base of the module.
 	/// </summary>
-	public long DataSectionOffset { get; private set; }
+	private long DataSectionOffset { get; set; }
 	/// <summary>
 	///     The size of the .data section.
 	/// </summary>
-	public int DataSectionSize { get; private set; }
-
-	private IntPtr TextSectionTop => TextSectionBase + TextSectionSize;
+	private int DataSectionSize { get; set; }
 
 	private void SetupSearchSpace(ProcessModule module) {
 		var baseAddress = module.BaseAddress;
@@ -72,8 +48,8 @@ public class SigScanner {
 			// .text
 			switch (sectionName) {
 				case 0x747865742E: // .text
-					TextSectionOffset = ReadInt32(sectionCursor, 12);
-					TextSectionSize = ReadInt32(sectionCursor, 8);
+					ReadInt32(sectionCursor, 12);
+					ReadInt32(sectionCursor, 8);
 					break;
 				case 0x617461642E: // .data
 					DataSectionOffset = ReadInt32(sectionCursor, 12);
@@ -87,8 +63,7 @@ public class SigScanner {
 
 	#region structs
 
-	[StructLayout(LayoutKind.Sequential)]
-	public struct IMAGE_DOS_HEADER {
+	[StructLayout(LayoutKind.Sequential)] private struct IMAGE_DOS_HEADER {
 		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 2)]
 		public char[] e_magic; // Magic number
 		public UInt16 e_cblp; // Bytes on last page of file
@@ -118,8 +93,7 @@ public class SigScanner {
 	}
 
 
-	[StructLayout(LayoutKind.Sequential)]
-	public struct IMAGE_FILE_HEADER {
+	[StructLayout(LayoutKind.Sequential)] private struct IMAGE_FILE_HEADER {
 		public UInt16 Machine;
 		public UInt16 NumberOfSections;
 		public UInt32 TimeDateStamp;
@@ -130,19 +104,15 @@ public class SigScanner {
 	}
 
 
-	[StructLayout(LayoutKind.Explicit)]
-	public struct IMAGE_NT_HEADERS64 {
+	[StructLayout(LayoutKind.Explicit)] private struct IMAGE_NT_HEADERS64 {
 		[FieldOffset(0)] public uint Signature;
 
 		[FieldOffset(4)] public IMAGE_FILE_HEADER FileHeader;
 
 		[FieldOffset(24)] public IMAGE_OPTIONAL_HEADER64 OptionalHeader;
-
-		public bool IsValid => Signature == 0x00004550 && OptionalHeader.Magic == MagicType.IMAGE_NT_OPTIONAL_HDR64_MAGIC;
 	}
 
-	[StructLayout(LayoutKind.Explicit)]
-	public struct IMAGE_OPTIONAL_HEADER64 {
+	[StructLayout(LayoutKind.Explicit)] private struct IMAGE_OPTIONAL_HEADER64 {
 		[FieldOffset(0)] public MagicType Magic;
 
 		[FieldOffset(2)] public byte MajorLinkerVersion;
@@ -234,53 +204,16 @@ public class SigScanner {
 		[FieldOffset(232)] public IMAGE_DATA_DIRECTORY Reserved;
 	}
 
-	[StructLayout(LayoutKind.Sequential)]
-	public struct IMAGE_DATA_DIRECTORY {
+	[StructLayout(LayoutKind.Sequential)] private struct IMAGE_DATA_DIRECTORY {
 		public UInt32 VirtualAddress;
 		public UInt32 Size;
 	}
 
-	public enum MachineType : ushort {
-		Native = 0,
-		I386 = 0x014c,
-		Itanium = 0x0200,
-		x64 = 0x8664
-	}
+	private enum MagicType : ushort;
 
-	public enum MagicType : ushort {
-		IMAGE_NT_OPTIONAL_HDR32_MAGIC = 0x10b,
-		IMAGE_NT_OPTIONAL_HDR64_MAGIC = 0x20b
-	}
+	private enum SubSystemType : ushort;
 
-	public enum SubSystemType : ushort {
-		IMAGE_SUBSYSTEM_UNKNOWN = 0,
-		IMAGE_SUBSYSTEM_NATIVE = 1,
-		IMAGE_SUBSYSTEM_WINDOWS_GUI = 2,
-		IMAGE_SUBSYSTEM_WINDOWS_CUI = 3,
-		IMAGE_SUBSYSTEM_POSIX_CUI = 7,
-		IMAGE_SUBSYSTEM_WINDOWS_CE_GUI = 9,
-		IMAGE_SUBSYSTEM_EFI_APPLICATION = 10,
-		IMAGE_SUBSYSTEM_EFI_BOOT_SERVICE_DRIVER = 11,
-		IMAGE_SUBSYSTEM_EFI_RUNTIME_DRIVER = 12,
-		IMAGE_SUBSYSTEM_EFI_ROM = 13,
-		IMAGE_SUBSYSTEM_XBOX = 14
-	}
-
-	public enum DllCharacteristicsType : ushort {
-		RES_0 = 0x0001,
-		RES_1 = 0x0002,
-		RES_2 = 0x0004,
-		RES_3 = 0x0008,
-		IMAGE_DLL_CHARACTERISTICS_DYNAMIC_BASE = 0x0040,
-		IMAGE_DLL_CHARACTERISTICS_FORCE_INTEGRITY = 0x0080,
-		IMAGE_DLL_CHARACTERISTICS_NX_COMPAT = 0x0100,
-		IMAGE_DLLCHARACTERISTICS_NO_ISOLATION = 0x0200,
-		IMAGE_DLLCHARACTERISTICS_NO_SEH = 0x0400,
-		IMAGE_DLLCHARACTERISTICS_NO_BIND = 0x0800,
-		RES_4 = 0x1000,
-		IMAGE_DLLCHARACTERISTICS_WDM_DRIVER = 0x2000,
-		IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE = 0x8000
-	}
+	private enum DllCharacteristicsType : ushort;
 
 	#endregion
 
@@ -295,19 +228,17 @@ public class SigScanner {
 	public IntPtr ReadIntPtr(IntPtr address, int offset = 0) => _memhelper.Read<IntPtr>(IntPtr.Add(address, offset));
 
 	public SigScanner() {
-		//_logger = Locator.Current.GetService<ILogger>();
 		_memhelper = new MemHelper();
-		SetupSearchSpace(_memhelper.target.MainModule);
+		SetupSearchSpace(_memhelper.target.MainModule!);
 		_baseAddress = _memhelper.BaseAddress;
 
 		var dosHeaders = _memhelper.Read<IMAGE_DOS_HEADER>(_baseAddress);
-		if (dosHeaders.IsValid) {
-			var ntHeaders = _memhelper.Read<IMAGE_NT_HEADERS64>(_baseAddress + dosHeaders.e_lfanew);
-			SizeOfCode = ntHeaders.OptionalHeader.SizeOfCode;
-			CodeBase = ntHeaders.OptionalHeader.BaseOfCode;
-			_dataLength = CodeBase + SizeOfCode;
-			_data = _memhelper.ReadBytes(_baseAddress, (int)_dataLength);
-		}
+		if (!dosHeaders.IsValid) return;
+		var ntHeaders = _memhelper.Read<IMAGE_NT_HEADERS64>(_baseAddress + dosHeaders.e_lfanew);
+		var sizeOfCode = ntHeaders.OptionalHeader.SizeOfCode;
+		CodeBase = ntHeaders.OptionalHeader.BaseOfCode;
+		_dataLength = CodeBase + sizeOfCode;
+		_data = _memhelper.ReadBytes(_baseAddress, (int)_dataLength);
 	}
 
 	public T ScanText<T>(string pattern, Func<IntPtr, T> visitor, string name = null) {
@@ -326,35 +257,23 @@ public class SigScanner {
 	///     （可选）该签名的名称，用于调试或报错信息中显示。
 	/// </param>
 	/// <returns>匹配到的内存地址指针（如启用相对寻址，则为计算后的地址）。</returns>
-	public IntPtr ScanText(string pattern, string name = null)
+	public IntPtr ScanText(string pattern, string? name = null)
 		=> ScanText(new SigPatternInfo(pattern), name);
 
-	/// <summary>
-	///     使用已构造的签名模式对象扫描内存，并返回唯一匹配的位置指针。<br /><br />
-	///     通常应使用 <see cref="ScanText(string, string)" /> 简化调用流程。<br /><br />
-	///     本重载用于处理更复杂的情况，详见 <see cref="SigPatternInfo(string, int, int?)" />。
-	/// </summary>
-	/// <param name="sig">
-	///     签名模式对象，包含解析后的字节序列，以及相对寻址参数（如启用）。
-	/// </param>
-	/// <param name="name">
-	///     （可选）该签名的名称，用于调试或报错信息中显示。
-	/// </param>
-	/// <returns>匹配到的内存地址指针（如启用相对寻址，则为计算后的地址）。</returns>
-	public IntPtr ScanText(SigPatternInfo sig, string name = null) {
-		var results = FindPattern(sig.Bytes);
-		if (results.Count > 1) {
-			throw new ArgumentException(L.Get("PostNamazu/resultMultiple",
-				name == null ? "" : $" {name} ",
-				results.Count
-			));
-		}
-		if (results.Count == 0) {
-			throw new ArgumentException(L.Get("PostNamazu/resultNone",
-				name == null ? "" : $" {name} "
-			));
-		}
 
+	public IntPtr ScanText(SigPatternInfo sig, string? name = null) {
+		var results = FindPattern(sig.Bytes);
+		switch (results.Count) {
+			case > 1:
+				throw new ArgumentException(L.Get("PostNamazu/resultMultiple",
+					name == null ? "" : $" {name} ",
+					results.Count
+				));
+			case 0:
+				throw new ArgumentException(L.Get("PostNamazu/resultNone",
+					name == null ? "" : $" {name} "
+				));
+		}
 		var patternPtr = results[0];
 		if (sig.IsRelAddressing) // 指定相对寻址
 		{
@@ -362,33 +281,23 @@ public class SigScanner {
 			patternPtr = patternPtr + sig.NextCmdOffset + ReadInt32(disp32Ptr);
 		}
 #if DEBUG
-            PostNamazu.Plugin.PluginUi.Log($"[Scanner] {name ?? ""} @ {patternPtr} ({sig})");
+		PostNamazu.Plugin.PluginUi.Log($"[Scanner] {name ?? ""} @ {patternPtr} ({sig})");
 #endif
 		return patternPtr;
 	}
 
-	public struct SigPatternInfo {
-		public readonly string Pattern;
+	public readonly struct SigPatternInfo {
+		private readonly string Pattern;
 		/// <summary> 内存签名的字节序列对应的整数值。通配符 ? 和 * 分别以 -1 和 -2 表示。 </summary>
 		public readonly List<int> Bytes;
 		/// <summary> 是否为相对寻址。 </summary>
-		public bool IsRelAddressing;
+		public readonly bool IsRelAddressing;
 		/// <summary> 相对寻址的 disp32（即 * 的起始处）相对于内存签名起始处的偏移。</summary>
-		public int Disp32Offset;
+		public readonly int Disp32Offset;
 		/// <summary> 相对寻址的下一条指令（即 * 后的指令）相对于内存签名起始处的偏移。</summary>
-		public int NextCmdOffset;
+		public readonly int NextCmdOffset;
 
-		/// <summary>
-		///     构造一个签名模式信息对象，将十六进制字符串解析为字节列表，并判断是否使用相对寻址。<br /><br />
-		///     ? 或 ?? 表示普通通配符，如：<br />
-		///     <c> · 48 89 5C 24 ?? ... </c> <br /><br />
-		///     * 或 ** 表示相对寻址通配符，如果使用，则至少有连续四个，如：<br />
-		///     <c> · 48 8D 0D * * * * 4C 8B 85 ... </c> <br />
-		///     <c> · E8 * * * * 48 83 C4 ? E9 ? ? ? ? ... </c> <br />
-		///     <c> · 48 83 3D * * * * * 74 ? ... </c>（第五个星号为指令末尾的立即数的占位符）<br /><br />
-		///     相对寻址计算方式为 * 后的地址 + 前四个 * 对应的 int 偏移量。<br /><br />
-		///     如果需要手动指定偏移量和相对寻址指令长度，请使用 <see cref="SigPatternInfo(string, int, int?)" /> 构造函数。
-		/// </summary>
+
 		public SigPatternInfo(string hexPattern) {
 			Pattern = hexPattern;
 			Bytes = hexPattern.Trim().Split([' '], StringSplitOptions.RemoveEmptyEntries).Select(s => {
@@ -417,18 +326,6 @@ public class SigScanner {
 			}
 		}
 
-		/// <summary>
-		///     构造一个签名模式信息对象，并强制指定相对寻址的偏移与指令结束位置。<br /><br />
-		///     用于处理复杂、非标准格式、或距离相对寻址指令较远的内存签名。<br /><br />
-		///     此构造函数不会再自动判断是否使用相对寻址，而是直接按指定值处理。<br /><br />
-		///     参数 <paramref name="nextCmdOffset" /> 若未指定，则默认指令以相对寻址的地址结尾。<br /><br />
-		///     通常推荐使用 <see cref="SigPatternInfo(string)" /> 由星号自动识别相对寻址。
-		/// </summary>
-		public SigPatternInfo(string hexPattern, int disp32Offset, int? nextCmdOffset = null) : this(hexPattern) {
-			IsRelAddressing = true;
-			Disp32Offset = disp32Offset;
-			NextCmdOffset = nextCmdOffset ?? disp32Offset + 4;
-		}
 
 		public override string ToString() => IsRelAddressing
 			? $"{Pattern}, Disp32Offset={Disp32Offset}, NextCmdOffset={NextCmdOffset}"
@@ -454,7 +351,7 @@ public class SigScanner {
 		return ret;
 	}
 
-	private bool ByteMatch(byte[] bytes, int start, List<int> pattern) {
+	private static bool ByteMatch(byte[] bytes, int start, List<int> pattern) {
 		for (int i = start, j = 0; j < pattern.Count; i++, j++) {
 			if (pattern[j] < 0)
 				continue;
@@ -472,9 +369,10 @@ public class SigScanner {
 	/// </summary>
 	/// <param name="signature">The signature of the function using the data.</param>
 	/// <param name="offset">The offset from function start of the instruction using the data.</param>
+	/// <param name="name"></param>
 	/// <returns>An IntPtr to the static memory location.</returns>
 	[Obsolete("Use relative addressing sigcodes.")]
-	public IntPtr GetStaticAddressFromSig(string signature, int offset = 0, string name = null) {
+	public IntPtr GetStaticAddressFromSig(string signature, int offset = 0, string? name = null) {
 		var instrAddr = ScanText(signature, name);
 		instrAddr = IntPtr.Add(instrAddr, offset);
 		var bAddr = (long)_baseAddress;

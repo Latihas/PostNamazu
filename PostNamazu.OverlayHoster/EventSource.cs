@@ -20,17 +20,12 @@ internal class EventSource : EventSourceBase {
 		var command = jo["c"]?.Value<string>() ?? "null";
 		var payload = jo["p"]?.Value<string>() ?? "";
 		if (PostNamazuDelegate == null)
-			throw new ArgumentNullException("没有活动的鲶鱼精邮差插件本体");
+			throw new Exception("没有活动的鲶鱼精邮差插件本体");
 		PostNamazuDelegate(command, payload);
-		return null;
+		return new JObject();
 	}
 
 	#region EventSourceBaseRequired
-
-	// public override Control CreateConfigControl()
-	// {
-	//     return new Control();
-	// }
 
 	public override void LoadConfig(IPluginConfig config) {
 	}

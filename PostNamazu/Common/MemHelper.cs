@@ -10,25 +10,11 @@ public unsafe class MemHelper {
 
 	[DllImport("kernel32.dll", SetLastError = true)]
 	[SuppressUnmanagedCodeSecurity]
-	private static extern bool ReadProcessMemory(
-		IntPtr hProcess, IntPtr lpBaseAddress, [Out] byte[] lpBuffer,
-		int dwSize, out IntPtr lpNumberOfBytesRead);
-
-	// [DllImport("kernel32.dll", SetLastError = true)]
-	// [SuppressUnmanagedCodeSecurity]
-	// private static extern bool ReadProcessMemory(
-	//     IntPtr hProcess,
-	//     [Out] [MarshalAs(UnmanagedType.AsAny)] object lpBuffer, int dwSize, out IntPtr lpNumberOfBytesRead);
-	//
-	// [DllImport("kernel32.dll", SetLastError = true)]
-	// [SuppressUnmanagedCodeSecurity]
-	// private static extern bool ReadProcessMemory(
-	//     IntPtr hProcess, IntPtr lpBaseAddress, IntPtr lpBuffer, int dwSize,
-	//     out IntPtr lpNumberOfBytesRead);
+	private static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [Out] byte[] lpBuffer, int dwSize, out IntPtr lpNumberOfBytesRead);
 
 	[DllImport("Kernel32.dll", EntryPoint = "RtlMoveMemory", SetLastError = false)]
 	[SuppressUnmanagedCodeSecurity]
-	internal static extern IntPtr MoveMemory(byte* dest, byte* src, int count);
+	private static extern IntPtr MoveMemory(byte* dest, byte* src, int count);
 
 	#endregion
 
@@ -43,7 +29,7 @@ public unsafe class MemHelper {
 
 	public byte[] ReadBytes(IntPtr address, int count) {
 		var bytes = new byte[count];
-		ReadProcessMemory(target.Handle, address, bytes, count, out var read);
+		ReadProcessMemory(target.Handle, address, bytes, count, out _);
 		return bytes;
 	}
 

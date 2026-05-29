@@ -11,12 +11,8 @@ public enum Language {
 
 public static class LocalizationManager {
 	private static readonly Dictionary<string, LocalizationEntry> Localizations = new();
-	private static Language _currentLanguage = Language.EN;
 
-	public static Language CurrentLanguage {
-		get => _currentLanguage;
-		set => _currentLanguage = value;
-	}
+	public static Language CurrentLanguage { get; set; } = Language.EN;
 
 	static LocalizationManager() {
 		// 初始化时扫描所有程序集中的本地化字符串
@@ -26,25 +22,12 @@ public static class LocalizationManager {
 	/// <summary>
 	///     获取本地化字符串
 	/// </summary>
-	public static string Get(string key, params object[] args) {
-		if (Localizations.TryGetValue(key, out var entry)) {
-			var text = CurrentLanguage == Language.CN ? entry.Chinese : entry.English;
-			return args.Length > 0 ? string.Format(text, args) : text;
-		}
-
+	public static string Get(string key, params object?[] args) {
 		// 如果找不到翻译，返回key本身，方便调试
-		return $"[{key}]";
+		if (!Localizations.TryGetValue(key, out var entry)) return $"[{key}]";
+		var text = CurrentLanguage == Language.CN ? entry.Chinese : entry.English;
+		return args.Length > 0 ? string.Format(text, args) : text;
 	}
-
-	/// <summary>
-	///     获取所有已注册的本地化键（用于调试）
-	/// </summary>
-	public static Dictionary<string, LocalizationEntry> GetAllLocalizations() => new(Localizations);
-
-	/// <summary>
-	///     获取已注册键的数量（用于调试）
-	/// </summary>
-	public static int GetRegisteredCount() => Localizations.Count;
 
 	/// <summary>
 	///     注册本地化字符串
@@ -83,9 +66,9 @@ public static class LocalizationManager {
 		CurrentLanguage = CultureInfo.CurrentCulture.Name.StartsWith("zh") ? Language.CN : Language.EN;
 	}
 
-	public class LocalizationEntry {
-		public string English { get; set; }
-		public string Chinese { get; set; }
+	private class LocalizationEntry {
+		public string English { get; init; }
+		public string Chinese { get; init; }
 	}
 }
 
@@ -96,5 +79,5 @@ public static class L {
 	/// <summary>
 	///     获取本地化字符串的快捷方法
 	/// </summary>
-	public static string Get(string key, params object[] args) => LocalizationManager.Get(key, args);
+	public static string Get(string key, params object?[] args) => LocalizationManager.Get(key, args);
 }

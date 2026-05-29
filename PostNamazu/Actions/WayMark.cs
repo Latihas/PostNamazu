@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Advanced_Combat_Tracker;
@@ -11,10 +12,10 @@ using RainbowMage.OverlayPlugin;
 using RainbowMage.OverlayPlugin.MemoryProcessors.InCombat;
 using Triggernometry.PluginBridges.BridgeNamazu;
 
-#pragma warning disable CS0649 // 从未对字段赋值，字段将一直保持其默认值
-
 namespace PostNamazu.Actions;
 
+[SuppressMessage("Performance", "CS0649")]
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public class WayMark : NamazuModule {
 	private WayMarks? tempMarks; //暂存场地标点
 
@@ -23,7 +24,7 @@ public class WayMark : NamazuModule {
 	private static ExecuteCommandDelegate _ExecuteCommandDelegate;
 
 	// 本地化字符串定义
-	[LocalizationProvider("WayMark")]
+	[LocalizationProvider("WayMark")] [SuppressMessage("ReSharper", "UnusedType.Local")]
 	private static class Localizations {
 		[Localized("Waymarks: cache restored", "场地标点: 已本地清除所有标点。")]
 		public static readonly string Clear;
@@ -59,7 +60,7 @@ public class WayMark : NamazuModule {
 		public static readonly string SaveException;
 	}
 
-	public override void GetOffsets() {
+	protected override void GetOffsets() {
 		base.GetOffsets();
 		try {
 			_ExecuteCommandDelegate = GetSig<ExecuteCommandDelegate>("E8 * * * * 48 83 C4 ?? C3 CC CC CC CC CC CC CC CC CC CC CC CC 48 83 EC ?? 45 0F B6 C0");
@@ -72,7 +73,8 @@ public class WayMark : NamazuModule {
 	///     场地标点
 	/// </summary>
 	/// <param name="waymarks">标点合集对象</param>
-	internal void DoWaymarks(WayMarks waymarks) {
+	internal static void DoWaymarks(WayMarks? waymarks) {
+		if (waymarks == null) return;
 		WriteWaymark(waymarks.A, 0);
 		WriteWaymark(waymarks.B, 1);
 		WriteWaymark(waymarks.C, 2);
@@ -127,9 +129,9 @@ public class WayMark : NamazuModule {
 				break;
 			default:
 				var waymarks = JsonConvert.DeserializeObject<WayMarks>(waymarksStr);
-				if (waymarks.LocalOnly) {
-					DoWaymarks(waymarks);
-				} else {
+				if (waymarks == null) break;
+				if (waymarks.LocalOnly) DoWaymarks(waymarks);
+				else {
 					if (GetInCombat()) {
 						if (waymarks.Log) Log(L.Get("WayMark/InCombat"));
 						return;
@@ -185,8 +187,6 @@ public class WayMark : NamazuModule {
 	///     恢复暂存标点
 	/// </summary>
 	public void LoadWaymark() {
-		if (tempMarks == null)
-			return;
 		DoWaymarks(tempMarks);
 		PluginUI.Log(L.Get("WayMark/Load"));
 	}
@@ -196,7 +196,7 @@ public class WayMark : NamazuModule {
 	/// </summary>
 	/// <param name="waymark">标点</param>
 	/// <param name="id">ID</param>
-	private unsafe void WriteWaymark(Waymark? waymark, int id = -1) {
+	private static unsafe void WriteWaymark(Waymark? waymark, int id = -1) {
 		if (waymark == null)
 			return;
 
@@ -239,7 +239,7 @@ public class WayMark : NamazuModule {
 
 	// 统一使用 uint 调用此内部函数（参数常用于传入 id 等，uint 相比于 int 更合理）
 	// 防止 GreyMagic 多次调用时参数类型不一致报错
-	private void ExecuteCommand(int command, int a1 = 0, int a2 = 0, int a3 = 0, int a4 = 0)
+	private static void ExecuteCommand(int command, int a1 = 0, int a2 = 0, int a3 = 0, int a4 = 0)
 		=> _ExecuteCommandDelegate(command, a1, a2, a3, a4);
 
 	public bool GetInCombat() {

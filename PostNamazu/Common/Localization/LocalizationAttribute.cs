@@ -6,24 +6,15 @@ namespace PostNamazu.Common.Localization;
 ///     标记一个可本地化的字符串
 /// </summary>
 [AttributeUsage(AttributeTargets.Field)]
-public class LocalizedAttribute : Attribute {
-	public string English { get; set; }
-	public string Chinese { get; set; }
-
-	public LocalizedAttribute(string english, string chinese) {
-		English = english;
-		Chinese = chinese;
-	}
+public class LocalizedAttribute(string english, string chinese) : Attribute {
+	public string English { get; } = english;
+	public string Chinese { get; } = chinese;
 }
 
 /// <summary>
 ///     标记一个包含本地化字符串的类
 /// </summary>
 [AttributeUsage(AttributeTargets.Class)]
-public class LocalizationProviderAttribute : Attribute {
-	public string Prefix { get; set; }
-
-	public LocalizationProviderAttribute(string prefix = null) {
-		Prefix = prefix;
-	}
+public class LocalizationProviderAttribute(string? prefix = null) : Attribute {
+	public string? Prefix { get; } = prefix;
 }

@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using PostNamazu.Attributes;
 using PostNamazu.Common.Localization;
 
-#pragma warning disable CS0649 // 从未对字段赋值，字段将一直保持其默认值
-
 namespace PostNamazu.Actions;
 
+[SuppressMessage("Performance", "CS0649")]
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 internal class Queue : NamazuModule {
 	private static readonly List<string> QueuePending = []; //注册qid的队列
 
 	// 本地化字符串定义
-	[LocalizationProvider("Queue")]
+	[LocalizationProvider("Queue")] [SuppressMessage("ReSharper", "UnusedType.Local")]
 	private static class Localizations {
 		[Localized("Request to interrupt queue: {0}", "要求打断队列：{0}")]
 		public static readonly string Break;
@@ -29,6 +30,7 @@ internal class Queue : NamazuModule {
 		try {
 			CheckBeforeExecution(command);
 			var actions = JsonConvert.DeserializeObject<QueueAction[]>(command);
+			if (actions == null) return;
 			var qid = ""; //QueueID，为空时不会受到打断指令的影响
 			foreach (var action in actions) {
 				await Task.Run(async () => {
@@ -53,10 +55,9 @@ internal class Queue : NamazuModule {
 							break;
 					}
 				});
-				if (qid != "" && !QueuePending.Contains(qid)) {
-					Log(L.Get("Queue/Broken", qid));
-					break;
-				}
+				if (qid == "" || QueuePending.Contains(qid)) continue;
+				Log(L.Get("Queue/Broken", qid));
+				break;
 			}
 			if (qid != "")
 				QueuePending.Remove(qid); //执行完毕，移除队列
@@ -70,14 +71,8 @@ internal class Queue : NamazuModule {
 	[Command("BreakQueueActions")]
 	public void BreakQueue(string command) {
 		Log(L.Get("Queue/Break", command));
-		switch (command.ToLower()) {
-			case "all":
-				QueuePending.Clear();
-				break;
-			default:
-				QueuePending.RemoveAll(qid => Regex.IsMatch(qid, $"^{command}$"));
-				break;
-		}
+		if (command.ToLower() == "all") QueuePending.Clear();
+		else QueuePending.RemoveAll(qid => Regex.IsMatch(qid, $"^{command}$"));
 	}
 
 	public class QueueAction {

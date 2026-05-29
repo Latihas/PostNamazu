@@ -1,4 +1,4 @@
-using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace PostNamazu.Common.Localization;
@@ -6,6 +6,7 @@ namespace PostNamazu.Common.Localization;
 /// <summary>
 ///     Module本地化基类，提供简洁的本地化定义方式
 /// </summary>
+[SuppressMessage("ReSharper", "UnusedType.Global")]
 public abstract class ModuleLocalization {
 	protected ModuleLocalization() {
 		RegisterLocalizations();
@@ -21,46 +22,19 @@ public abstract class ModuleLocalization {
 
 		// 获取所有公共字段
 		foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Static)) {
-			if (field.FieldType == typeof(LocalizedString)) {
-				var value = (LocalizedString)field.GetValue(null);
-				if (value != null) {
-					var key = $"{prefix}/{field.Name}";
-					LocalizationManager.Register(key, value.English, value.Chinese);
-				}
-			}
+			if (field.FieldType != typeof(LocalizedString) || field.GetValue(null) is not LocalizedString value) continue;
+			var key = $"{prefix}/{field.Name}";
+			LocalizationManager.Register(key, value.English, value.Chinese);
 		}
-	}
-
-	/// <summary>
-	///     获取本地化字符串
-	/// </summary>
-	protected static string Get(string key, params object[] args) {
-		// 获取调用者的类型来构建完整的key
-		var stackFrame = new StackFrame(1);
-		var method = stackFrame.GetMethod();
-		var type = method?.DeclaringType;
-
-		// 如果是嵌套类，使用外部类的名称作为前缀
-		if (type != null && type.IsNested) {
-			type = type.DeclaringType;
-		}
-
-		var fullKey = type != null ? $"{type.Name}/{key}" : key;
-		return LocalizationManager.Get(fullKey, args);
 	}
 }
 
 /// <summary>
 ///     表示一个本地化字符串
 /// </summary>
-public class LocalizedString {
-	public string English { get; }
-	public string Chinese { get; }
-
-	public LocalizedString(string english, string chinese) {
-		English = english;
-		Chinese = chinese;
-	}
+public class LocalizedString(string english, string chinese) {
+	public string English { get; } = english;
+	public string Chinese { get; } = chinese;
 
 	/// <summary>
 	///     隐式转换，方便直接使用

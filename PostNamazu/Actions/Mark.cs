@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using FFXIV_ACT_Plugin.Common.Models;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
@@ -8,10 +9,10 @@ using PostNamazu.Common.Localization;
 using PostNamazu.Models;
 using Triggernometry.PluginBridges.BridgeNamazu;
 
-#pragma warning disable CS0649 // 从未对字段赋值，字段将一直保持其默认值
-
 namespace PostNamazu.Actions;
 
+[SuppressMessage("Performance", "CS0649")]
+[SuppressMessage("ReSharper", "UnusedType.Global")]
 internal class Mark : NamazuModule {
 	private delegate IntPtr MarkingDelegate(long a1, uint markingTypeOrder, long id);
 
@@ -21,7 +22,7 @@ internal class Mark : NamazuModule {
 	private static LocalMarkingDelegate _localMarkingDelegate;
 
 	// 本地化字符串定义
-	[LocalizationProvider("Mark")]
+	[LocalizationProvider("Mark")] [SuppressMessage("ReSharper", "UnusedType.Local")]
 	private static class Localizations {
 		[Localized("Could not find actor: {0}", "未能找到实体： {0}")]
 		public static readonly string ActorNotFound;
@@ -30,7 +31,7 @@ internal class Mark : NamazuModule {
 		public static readonly string Exception;
 	}
 
-	public override void GetOffsets() {
+	protected override void GetOffsets() {
 		base.GetOffsets();
 		try {
 			_markingDelegate = GetSig<MarkingDelegate>("E8 * * * * E8 ? ? ? ? 48 8B CB 48 89 86");
@@ -55,7 +56,7 @@ internal class Mark : NamazuModule {
 		MarkActor(actor, mark.MarkType.Value, mark.Log, mark.LocalOnly);
 	}
 
-	private Combatant GetActor(uint? id, string name) {
+	private static Combatant GetActor(uint? id, string? name) {
 		if (id is 0xE0000000 or 0xE000000) {
 			Combatant actor = new() {
 				ID = 0xE0000000
@@ -68,7 +69,7 @@ internal class Mark : NamazuModule {
 		       ?? throw new Exception(L.Get("Mark/ActorNotFound", id?.ToString("X8") ?? name ?? "(null)"));
 	}
 
-	private unsafe void MarkActor(Combatant actor, MarkType markingType, bool shouldLog, bool localOnly = false) {
+	private static unsafe void MarkActor(Combatant actor, MarkType markingType, bool shouldLog, bool localOnly = false) {
 		if (shouldLog) {
 			PluginUI.Log($"Mark: Actor={actor.Name} (0x{actor.ID:X8}), Type={markingType} ({(int)markingType}), LocalOnly={localOnly}");
 		}

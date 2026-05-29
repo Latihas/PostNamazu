@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Dalamud.Plugin.Services;
@@ -13,28 +14,20 @@ namespace PostNamazu.Actions {
 				pattern.Replace('*', '?').Replace("??", "?").Replace("?", "??")));
 
 		protected static PostNamazu PostNamazu => PostNamazu.Plugin;
-		protected static FFXIV_ACT_Plugin.FFXIV_ACT_Plugin FFXIV_ACT_Plugin => PostNamazu?.FFXIV_ACT_Plugin;
-		protected static Process FFXIV => PostNamazu?.FFXIV;
-		// protected static ExternalProcessMemory Memory => PostNamazu?.Memory;
-		protected static PostNamazuUi PluginUI => PostNamazu?.PluginUi;
-		// protected static SigScanner SigScanner => PostNamazu.SigScanner;
-		protected static ISigScanner DalamudSigScanner => PostNamazu.DalamudSigScanner;
+		protected static FFXIV_ACT_Plugin.FFXIV_ACT_Plugin FFXIV_ACT_Plugin => PostNamazu.FFXIV_ACT_Plugin;
+		protected static Process FFXIV => PostNamazu.FFXIV;
+		protected static PostNamazuUi PluginUI => PostNamazu.PluginUi;
+		private static ISigScanner DalamudSigScanner => PostNamazu.DalamudSigScanner;
 
-		public static bool IsPluginReady => true;
+		private static bool IsPluginReady => true;
 
 
-		protected bool complaintAboutModuleNotReady;
+		private bool complaintAboutModuleNotReady;
 
-		protected PostNamazu.StateEnum _state = PostNamazu.StateEnum.NotReady;
+		[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
 		public PostNamazu.StateEnum State {
-			get => PostNamazu.StateEnum.Ready;
-			internal set {
-				//     _state = value;
-				// PluginUI.UpdateActionColorByState(GetType().Name, _state);
-// #if DEBUG
-//                 PluginUI.Log($"{GetType().Name} 模组状态变更：{value}");
-// #endif
-			}
+			get;
+			internal set;
 		}
 
 		public void Setup() {
@@ -43,23 +36,23 @@ namespace PostNamazu.Actions {
 				GetOffsets();
 				State = PostNamazu.StateEnum.Ready;
 			} catch (Exception ex) {
-				PluginUI?.Log(L.Get("PostNamazu/getOffsetsFail", GetType().Name, ex.Message + " \n" + ex.StackTrace));
+				PluginUI.Log(L.Get("PostNamazu/getOffsetsFail", GetType().Name, ex.Message + " \n" + ex.StackTrace));
 				State = PostNamazu.StateEnum.Failure;
 			}
 			//Log("初始化完成");
 		}
 
-		public virtual void GetOffsets() {
+		protected virtual void GetOffsets() {
 		}
 
-		public void Log(string msg) {
-			PluginUI?.Log(msg);
+		protected static void Log(string msg) {
+			PluginUI.Log(msg);
 		}
 
 		/// <summary> 检查插件和模组是否准备就绪，若不是则抛出异常，避免在错误的地址调用函数导致游戏崩溃。</summary>
 		/// <exception cref="Exception"></exception>
 		/// <exception cref="IgnoredException">模组初始化失败的情况下非首次报错，忽略此异常。</exception>
-		public void CheckBeforeExecution() {
+		protected void CheckBeforeExecution() {
 			if (!IsPluginReady) {
 				throw new Exception(L.Get("PostNamazu/xivProcNotFound"));
 			}
@@ -72,14 +65,13 @@ namespace PostNamazu.Actions {
 			while (State == PostNamazu.StateEnum.Waiting) {
 				count++;
 #if DEBUG
-                Log($"{GetType().Name} 模组未就绪，正在等待第 {count} / {Constants.ModuleInitMaxWaitCount} 次…");
+				Log($"{GetType().Name} 模组未就绪，正在等待第 {count} / {Constants.ModuleInitMaxWaitCount} 次…");
 #endif
 				Thread.Sleep(Constants.ModuleInitWaitInterval);
-				if (count > Constants.ModuleInitMaxWaitCount) {
-					// 不应进入此分支，进入此分支说明 State 由于程序逻辑问题而错误地保持在 Waiting 状态
-					Log($"{GetType().Name} 模组长期未能初始化，已跳过。");
-					State = PostNamazu.StateEnum.Failure;
-				}
+				if (count <= Constants.ModuleInitMaxWaitCount) continue;
+				// 不应进入此分支，进入此分支说明 State 由于程序逻辑问题而错误地保持在 Waiting 状态
+				Log($"{GetType().Name} 模组长期未能初始化，已跳过。");
+				State = PostNamazu.StateEnum.Failure;
 			}
 			if (State == PostNamazu.StateEnum.Failure) {
 				var noModuleMsg = L.Get("PostNamazu/moduleInitFail", GetType().Name);
@@ -95,7 +87,7 @@ namespace PostNamazu.Actions {
 		}
 
 		/// <summary> 检查插件和模组是否准备就绪，且指令是否非空，若不是则抛出异常。</summary>
-		public void CheckBeforeExecution(string command) {
+		protected void CheckBeforeExecution(string command) {
 			CheckBeforeExecution();
 			if (string.IsNullOrWhiteSpace(command))
 				throw new Exception(L.Get("PostNamazu/emptyCommand"));
@@ -106,48 +98,12 @@ namespace PostNamazu.Actions {
 			internal IgnoredException(string msg) : base(msg) {
 			}
 		}
-
-		// public static void ExecuteWithLock(Action action)
-		// {
-		//     var lockTaken = false;
-		//     try
-		//     {
-		//         Monitor.Enter(Memory.Executor.AssemblyLock, ref lockTaken);
-		//         action();
-		//     }
-		//     finally 
-		//     { 
-		//         if (lockTaken) Monitor.Exit(Memory.Executor.AssemblyLock); 
-		//     }
-		// }
-
-		// public static T ExecuteWithLock<T>(Func<T> function)
-		// {
-		//     var lockTaken = false;
-		//     try
-		//     {
-		//         Monitor.Enter(Memory.Executor.AssemblyLock, ref lockTaken);
-		//         return function();
-		//     }
-		//     finally 
-		//     { 
-		//         if (lockTaken) Monitor.Exit(Memory.Executor.AssemblyLock); 
-		//     }
-		// }
 	}
 }
 
-
-#pragma warning disable IDE0130 // 命名空间与文件夹结构不匹配
-namespace PostNamazu.Attributes
-#pragma warning restore IDE0130 // 命名空间与文件夹结构不匹配
-{
+namespace PostNamazu.Attributes {
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-	public class CommandAttribute : Attribute {
-		public string Command { get; }
-
-		public CommandAttribute(string command) {
-			Command = command;
-		}
+	public class CommandAttribute(string command) : Attribute {
+		public string Command { get; } = command;
 	}
 }

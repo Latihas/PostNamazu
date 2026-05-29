@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using Newtonsoft.Json;
 
 namespace PostNamazu.Models;
 
@@ -10,6 +11,7 @@ public class Marking {
 	[JsonProperty] public bool Log { get; set; } = true;
 }
 
+[SuppressMessage("ReSharper", "UnusedMember.Global")]
 public enum MarkType : byte {
 	attack1 = 1,
 	attack2,

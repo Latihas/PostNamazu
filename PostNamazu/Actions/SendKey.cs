@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using PostNamazu.Attributes;
 using PostNamazu.Common.Localization;
 
-#pragma warning disable CS0649 // 从未对字段赋值，字段将一直保持其默认值
-
 namespace PostNamazu.Actions;
 
+[SuppressMessage("Performance", "CS0649")]
+[SuppressMessage("ReSharper", "UnusedType.Global")]
 internal class SendKey : NamazuModule {
 	// 本地化字符串定义
-	[LocalizationProvider("SendKey")]
+	[LocalizationProvider("SendKey")] [SuppressMessage("ReSharper", "UnusedType.Local")]
 	private static class Localizations {
 		[Localized("Key sent: {0}", "已发送按键：{0}")]
 		public static readonly string Success;
@@ -32,12 +33,12 @@ internal class SendKey : NamazuModule {
 		}
 	}
 
-	private void SendKeycode(int keycode) {
+	private static void SendKeycode(int keycode) {
 		SendMessageToWindow(WM_KEYDOWN, keycode, 0);
 		SendMessageToWindow(WM_KEYUP, keycode, 0);
 	}
 
-	private void SendMessageToWindow(uint code, int wparam, int lparam) {
+	private static void SendMessageToWindow(uint code, int wparam, int lparam) {
 		var hwnd = FFXIV.MainWindowHandle;
 		if (hwnd != IntPtr.Zero)
 			SendMessage(hwnd, code, wparam, lparam);

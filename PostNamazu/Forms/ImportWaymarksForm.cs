@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Windows.Forms;
 using Newtonsoft.Json;
@@ -6,8 +7,10 @@ using PostNamazu.Actions;
 using PostNamazu.Common.Localization;
 using PostNamazu.Models;
 
+// ReSharper disable once CheckNamespace
 namespace PostNamazu;
 
+[SuppressMessage("ReSharper", "VirtualMemberCallInConstructor")]
 public class ImportWaymarksForm : Form {
 	private static string _prevData;
 	private const string _defaultData =
@@ -23,12 +26,12 @@ public class ImportWaymarksForm : Form {
 		    "Four":  {}
 		}
 		""";
-	public TextBox TxtWaymarksData;
-	public Button btnDefault;
-	public Button btnPlace;
-	public Button btnPublic;
+	private readonly TextBox TxtWaymarksData;
+	public readonly Button btnDefault;
+	public readonly Button btnPlace;
+	public readonly Button btnPublic;
 
-	internal WayMark WaymarkModule = PostNamazu.Plugin.GetModuleInstance<WayMark>();
+	private readonly WayMark? WaymarkModule = PostNamazu.Plugin.GetModuleInstance<WayMark>();
 
 	public ImportWaymarksForm() {
 		Text = L.Get("PostNamazu/importWaymarksForm");
@@ -55,8 +58,8 @@ public class ImportWaymarksForm : Form {
 			Multiline = true
 		};
 		try {
-			var clipboardData = Clipboard.GetText() ?? "";
-			JsonConvert.DeserializeObject<WayMarks>(Clipboard.GetText());
+			var clipboardData = Clipboard.GetText();
+			JsonConvert.DeserializeObject<WayMarks>(clipboardData);
 			TxtWaymarksData.Text = clipboardData;
 		} catch {
 			TxtWaymarksData.Text = string.IsNullOrEmpty(_prevData) ? _defaultData : _prevData;
@@ -107,7 +110,7 @@ public class ImportWaymarksForm : Form {
 			UseVisualStyleBackColor = true
 		};
 		// 将按钮名转换为合适的本地化键名格式
-		var key = $"PostNamazu/importWaymarksForm{char.ToUpper(name[0])}{name.Substring(1)}";
+		var key = $"PostNamazu/importWaymarksForm{char.ToUpper(name[0])}{name[1..]}";
 		btn.Text = L.Get(key);
 		return btn;
 	}
@@ -119,7 +122,7 @@ public class ImportWaymarksForm : Form {
 	private void btnPlace_Click(object? sender, EventArgs e) {
 		try {
 			var waymarks = JsonConvert.DeserializeObject<WayMarks>(TxtWaymarksData.Text);
-			WaymarkModule.DoWaymarks(waymarks);
+			WayMark.DoWaymarks(waymarks);
 			MessageBox.Show(L.Get("PostNamazu/importWaymarksFormLocal"), "PostNamazu", MessageBoxButtons.OK, MessageBoxIcon.Information);
 		} catch (Exception ex) {
 			MessageBox.Show(L.Get("PostNamazu/importWaymarksFormFail", ex.ToString()), "PostNamazu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -128,12 +131,13 @@ public class ImportWaymarksForm : Form {
 
 	private void btnPublic_Click(object? sender, EventArgs e) {
 		try {
+			if (WaymarkModule == null) return;
 			if (WaymarkModule.GetInCombat()) {
 				MessageBox.Show(L.Get("PostNamazu/importWaymarksFormInCombat"), "PostNamazu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				return;
 			}
 			var waymarks = JsonConvert.DeserializeObject<WayMarks>(TxtWaymarksData.Text);
-			WaymarkModule.DoWaymarks(waymarks);
+			WayMark.DoWaymarks(waymarks);
 			WaymarkModule.Public(waymarks);
 			MessageBox.Show(L.Get("PostNamazu/importWaymarksFormPublic"), "PostNamazu", MessageBoxButtons.OK, MessageBoxIcon.Information);
 		} catch (Exception ex) {

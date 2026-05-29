@@ -41,10 +41,9 @@ public class WayMarks : IEnumerable<Waymark?> {
 		if (MapID != 0) sb.Append($"MapId={MapID}; \n");
 
 		foreach (var waymark in this) {
-			if (waymark != null) {
-				sb.Append(waymark);
-				sb.Append("; \n");
-			}
+			if (waymark == null) continue;
+			sb.Append(waymark);
+			sb.Append("; \n");
 		}
 		if (sb.Length > 3) {
 			sb.Remove(sb.Length - 3, 3);

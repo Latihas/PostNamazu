@@ -1,10 +1,12 @@
-#pragma warning disable CS0169 // 字段从未被使用
+using System.Diagnostics.CodeAnalysis;
+
 namespace PostNamazu.Common.Localization;
 
 /// <summary>
 ///     核心本地化字符串定义
 /// </summary>
-[LocalizationProvider("PostNamazu")]
+[LocalizationProvider("PostNamazu")] [SuppressMessage("ReSharper", "UnusedType.Global")]
+[SuppressMessage("Performance", "CS0169")]
 public static class CoreLocalizations {
 	// UI相关
 	[Localized("PostNamazu", "鲶鱼精邮差")] private static readonly string title;

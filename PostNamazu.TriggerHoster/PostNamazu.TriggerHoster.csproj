@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Dalamud.NET.Sdk/15.0.0">
   <PropertyGroup>
-    <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
     <Use_DalamudPackager>false</Use_DalamudPackager>
   </PropertyGroup>
   <ItemGroup>

@@ -21,20 +21,29 @@ public class PostNamazu : IActPluginV1 {
 	public PostNamazuUi PluginUi;
 	// private Label _lblStatus; // The status label that appears in ACT's Plugin tab
 
-	private ProcessManager _processManager;
 	private PluginIntegrationManager _integrationManager;
 
 	private HttpServer? _httpServer;
 
-	internal Process FFXIV;
+	internal Process FFXIV {
+		get {
+			if (field != null) return field;
+			field = Plugin.FFXIV_ACT_Plugin.DataRepository.GetCurrentFFXIVProcess();
+			Plugin.SetState(StateEnum.Waiting);
+			Plugin.Detach();
+			Plugin.Attach();
+			return field;
+		}
+		private set;
+	}
 	internal FFXIV_ACT_Plugin.FFXIV_ACT_Plugin FFXIV_ACT_Plugin;
 	// public ExternalProcessMemory Memory;
 	public static IDalamudPluginInterface DalamudPluginInterface;
 	public SigScanner SigScanner;
-	public ISigScanner DalamudSigScanner;
+	internal ISigScanner DalamudSigScanner;
 	public IPluginLog Log;
 
-	public Dictionary<string, bool> ActionEnabled => PluginUi.ActionEnabled; //直接使用UI控件上的ActionEnabled状态
+	private Dictionary<string, bool> ActionEnabled => PluginUi.ActionEnabled; //直接使用UI控件上的ActionEnabled状态
 	private readonly Dictionary<string, HandlerDelegate> CmdBind = new(StringComparer.OrdinalIgnoreCase); //key不区分大小写
 
 	private readonly List<NamazuModule> Modules = [];
@@ -63,7 +72,7 @@ public class PostNamazu : IActPluginV1 {
 	internal void SetState(StateEnum value) {
 		_state = value;
 #if DEBUG
-		PluginUi?.Log($"插件状态变更：{value}");
+		PluginUi.Log($"插件状态变更：{value}");
 #endif
 	}
 
@@ -74,36 +83,21 @@ public class PostNamazu : IActPluginV1 {
 		DalamudPluginInterface = dalamudPluginInterface;
 		Log = log;
 		DalamudSigScanner = dalamudSigScanner;
-		// _lblStatus = pluginStatusText;
 		SigScanner = new SigScanner();
 		PluginUi = new PostNamazuUi();
-		// pluginScreenSpace.Controls.Add(PluginUi);
-		// pluginScreenSpace.Text = L.Get("PostNamazu/title");
-
 		PluginUi.Log(L.Get("PostNamazu/pluginVersion", Assembly.GetExecutingAssembly().GetName().Version));
 
 		FFXIV_ACT_Plugin = GetFFXIVPlugin();
 
 		// 初始化管理器
-		_processManager = new ProcessManager(this);
-		_integrationManager = new PluginIntegrationManager(this);
+		_integrationManager = new PluginIntegrationManager();
 
-		//目前解析插件有bug，在特定情况下无法正常触发ProcessChanged事件。因此只能通过后台线程实时监控
-		//FFXIV_ACT_Plugin.DataSubscription.ProcessChanged += ProcessChanged;
-
-
-		if (PluginUi.AutoStart)
-			ServerStart();
+		if (PluginUi.AutoStart) ServerStart();
 		PluginUi.ButtonStart.Click += ServerStart;
 		PluginUi.ButtonStop.Click += ServerStop;
 
 		InitializeActions();
-		_processManager.StartProcessMonitoring();
 		_integrationManager.InitializeIntegrations();
-
-		// Assembly.Load("GreyMagic"); // 直接加载而非首次调用时延迟加载，防止没开启游戏而没调用 GreyMagic 初始化 Memory 时其他插件找不到 GreyMagic
-
-		// _lblStatus.Text = L.Get("PostNamazu/pluginInit");
 		Log.Info(L.Get("PostNamazu/pluginInit"));
 		LogACT("Initialized");
 	}
@@ -115,9 +109,8 @@ public class PostNamazu : IActPluginV1 {
 		//FFXIV_ACT_Plugin.DataSubscription.ProcessChanged -= ProcessChanged;
 		PluginUi.SaveSettings();
 		Detach();
-		_integrationManager?.DeInitializeIntegrations();
+		_integrationManager.DeInitializeIntegrations();
 		if (_httpServer != null) ServerStop();
-		_processManager?.StopProcessMonitoring();
 
 		// _lblStatus.Text = L.Get("PostNamazu/pluginDeInit");
 		// Log.Info(L.Get("PostNamazu/pluginDeInit"));
@@ -134,7 +127,7 @@ public class PostNamazu : IActPluginV1 {
 #if DEBUG
 			PluginUi.Log($"Initalizing Module: {t.Name}");
 #endif
-			var module = (NamazuModule)Activator.CreateInstance(t);
+			if (Activator.CreateInstance(t) is not NamazuModule module) continue;
 			Modules.Add(module);
 			PluginUi.RegisterAction(t.Name);
 			var commands = module.GetType().GetMethods().Where(method => method.GetCustomAttributes<CommandAttribute>().Any());
@@ -150,8 +143,8 @@ public class PostNamazu : IActPluginV1 {
 		}
 	}
 
-	public T GetModuleInstance<T>() where T : NamazuModule {
-		return (T)Modules.FirstOrDefault(m => m is T);
+	public T? GetModuleInstance<T>() where T : NamazuModule {
+		return Modules.FirstOrDefault(m => m is T) as T;
 	}
 
 	/// <summary>
@@ -226,25 +219,11 @@ public class PostNamazu : IActPluginV1 {
 
 	internal void Detach() {
 		FFXIV = null;
-		// _frameworkPtrPtr = IntPtr.Zero;
-		foreach (var m in Modules) {
-			m.State = StateEnum.NotReady;
-		}
-		// try 
-		// {
-		//     if (Memory != null)
-		//         Memory.Dispose();
-		// }
-		// catch (Exception) {
-		//     // ignored
-		// }
+		foreach (var m in Modules) m.State = StateEnum.NotReady;
 	}
 
-	private FFXIV_ACT_Plugin.FFXIV_ACT_Plugin GetFFXIVPlugin() {
-		var plugin = ActGlobals.oFormActMain.FfxivPlugin;
-		return plugin
-		       ?? throw new Exception(L.Get("PostNamazu/parserNotFound"));
-	}
+	private static FFXIV_ACT_Plugin.FFXIV_ACT_Plugin GetFFXIVPlugin() => ActGlobals.oFormActMain.FfxivPlugin
+	                                                                     ?? throw new Exception(L.Get("PostNamazu/parserNotFound"));
 
 	#endregion
 
@@ -309,7 +288,7 @@ public class PostNamazu : IActPluginV1 {
 
 	#region Logging
 
-	internal void LogACT(string msg) {
+	internal static void LogACT(string msg) {
 		var log = $"00|{DateTime.Now:O}|FFFF|{Constants.PluginName}|{msg}|0000000000000000";
 		ActGlobals.oFormActMain.ParseRawLogLine(log);
 	}
@@ -327,7 +306,7 @@ public class PostNamazu : IActPluginV1 {
 		try {
 			var reflectedType = GetAction(command).GetMethodInfo().ReflectedType!.Name;
 
-			if (ActionEnabled.ContainsKey(reflectedType) && ActionEnabled[reflectedType]) //不响应没有启用的动作
+			if (ActionEnabled.TryGetValue(reflectedType, out var value) && value) //不响应没有启用的动作
 				GetAction(command)(payload);
 			else
 				PluginUi.Log(L.Get("PostNamazu/actionIgnored", command, payload));

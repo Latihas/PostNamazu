@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,13 +11,13 @@ public delegate void OnExceptionEventHandler(Exception ex);
 
 internal class HttpServer : IDisposable {
 	// 保持原始成员变量顺序，新增取消令牌相关变量
-	private Task _serverTask; // 替代原_thread，位置对应原始_serverThread
-	private HttpListener _listener; // 保持原始位置
+	private Task? _serverTask; // 替代原_thread，位置对应原始_serverThread
+	private HttpListener? _listener; // 保持原始位置
 	private readonly CancellationTokenSource _cts = new(); // 新增取消源
 
 	public int Port { get; private set; } // 保持原始位置
 
-	public Action<string, string> PostNamazuDelegate = null; // 保持原始位置
+	public Action<string, string>? PostNamazuDelegate = null; // 保持原始位置
 	public event OnExceptionEventHandler OnException; // 保持原始位置
 
 	#region Init // 保留原始区域名
@@ -29,18 +28,6 @@ internal class HttpServer : IDisposable {
 	/// <param name="port">要启动的端口</param>
 	public HttpServer(int port) {
 		Initialize(port); // 保持原始调用逻辑
-	}
-
-	/// <summary>
-	///     在随机端口启动监听
-	/// </summary>
-	public HttpServer() {
-		// 保持原始随机端口获取逻辑
-		var l = new TcpListener(IPAddress.Loopback, 0);
-		l.Start();
-		var port = ((IPEndPoint)l.LocalEndpoint).Port;
-		l.Stop();
-		Initialize(port);
 	}
 
 	/// <summary>
@@ -76,7 +63,7 @@ internal class HttpServer : IDisposable {
 			_listener.Prefixes.Add("http://*:" + Port + "/");
 			_listener.Start();
 		} catch (Exception ex) {
-			OnException?.Invoke(ex); // 保持异常触发逻辑
+			OnException.Invoke(ex); // 保持异常触发逻辑
 			return;
 		}
 
@@ -117,7 +104,7 @@ internal class HttpServer : IDisposable {
 		// 保持原始请求处理逻辑
 		var payload = new StreamReader(context.Request.InputStream, Encoding.UTF8).ReadToEnd();
 
-		PostNamazuDelegate?.Invoke(TrimUrl(context.Request.Url.AbsolutePath), payload);
+		PostNamazuDelegate?.Invoke(TrimUrl(context.Request.Url!.AbsolutePath), payload);
 
 		var buf = Encoding.UTF8.GetBytes(payload);
 		context.Response.ContentLength64 = buf.Length;
@@ -127,7 +114,7 @@ internal class HttpServer : IDisposable {
 	}
 
 	// 保持TrimUrl方法在最后，逻辑不变
-	public string TrimUrl(string url) => url.Trim(['/']);
+	private static string TrimUrl(string url) => url.Trim(['/']);
 
 	// 新增Dispose接口实现（放在最后，不影响原始结构顺序）
 	public void Dispose() {

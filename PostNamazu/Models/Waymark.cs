@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using PostNamazu.Actions;
 
@@ -13,6 +14,7 @@ public class Waymark : INotifyPropertyChanged {
 	/// </summary>
 	public float X {
 		get => Marker.Position.X;
+		[SuppressMessage("ReSharper", "UnusedMember.Global")]
 		set => Marker = Marker with {
 			X = WayMark.IntEncode(value),
 			Position = Marker.Position with {
@@ -27,6 +29,7 @@ public class Waymark : INotifyPropertyChanged {
 	/// </summary>
 	public float Y {
 		get => Marker.Position.Y;
+		[SuppressMessage("ReSharper", "UnusedMember.Global")]
 		set => Marker = Marker with {
 			Y = WayMark.IntEncode(value),
 			Position = Marker.Position with {
@@ -40,6 +43,7 @@ public class Waymark : INotifyPropertyChanged {
 	/// </summary>
 	public float Z {
 		get => Marker.Position.Z;
+		[SuppressMessage("ReSharper", "UnusedMember.Global")]
 		set => Marker = Marker with {
 			Z = WayMark.IntEncode(value),
 			Position = Marker.Position with {
@@ -58,12 +62,14 @@ public class Waymark : INotifyPropertyChanged {
 	/// </summary>
 	public bool Active {
 		get => Marker.Active;
+		[SuppressMessage("ReSharper", "UnusedMember.Global")]
 		set => Marker = Marker with {
 			Active = value
 		};
 	}
 	public FieldMarker Marker { get; set; }
 
+	[SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
 	public override int GetHashCode() => X.GetHashCode() & Y.GetHashCode() & Z.GetHashCode() & ID.GetHashCode() & Active.GetHashCode();
 
 	public override string ToString() => Active
@@ -77,9 +83,7 @@ public class Waymark : INotifyPropertyChanged {
 	/// <summary>
 	///     PropertyChanged event handler for this model.
 	/// </summary>
-#pragma warning disable 67
-	public event PropertyChangedEventHandler PropertyChanged;
-#pragma warning restore 67
+	public event PropertyChangedEventHandler? PropertyChanged;
 }
 
 /// <summary>
