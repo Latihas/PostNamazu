@@ -200,15 +200,10 @@ public class PostNamazu : IActPluginV1 {
 			State = StateEnum.Ready;
 			LogACT("Attached");
 
-			foreach (var m in Modules) {
-				m.State = StateEnum.Waiting;
-			}
-			// _frameworkPtrPtr = IntPtr.Zero;
+		
 			_isCN = null;
 			GetRegion();
-			foreach (var m in Modules) {
-				m.Setup();
-			}
+			foreach (var m in Modules) m.Setup();
 			LogACT("ModulesInitialized");
 		} catch (Exception ex) {
 			PluginUi.Log(L.Get("PostNamazu/xivProcInjectFailWithError", FFXIV.Id, ex.Message + " \n" + ex.StackTrace));
@@ -219,7 +214,6 @@ public class PostNamazu : IActPluginV1 {
 
 	internal void Detach() {
 		FFXIV = null;
-		foreach (var m in Modules) m.State = StateEnum.NotReady;
 	}
 
 	private static FFXIV_ACT_Plugin.FFXIV_ACT_Plugin GetFFXIVPlugin() => ActGlobals.oFormActMain.FfxivPlugin

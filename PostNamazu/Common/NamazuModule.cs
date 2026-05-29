@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
-using System.Threading;
 using Dalamud.Plugin.Services;
 using PostNamazu.Common;
 using PostNamazu.Common.Localization;
@@ -25,19 +24,14 @@ namespace PostNamazu.Actions {
 		private bool complaintAboutModuleNotReady;
 
 		[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
-		public PostNamazu.StateEnum State {
-			get;
-			internal set;
-		}
+		public PostNamazu.StateEnum State => PostNamazu.StateEnum.Ready;
 
 		public void Setup() {
 			try {
-				State = PostNamazu.StateEnum.Waiting;
 				GetOffsets();
-				State = PostNamazu.StateEnum.Ready;
 			} catch (Exception ex) {
 				PluginUI.Log(L.Get("PostNamazu/getOffsetsFail", GetType().Name, ex.Message + " \n" + ex.StackTrace));
-				State = PostNamazu.StateEnum.Failure;
+				
 			}
 			//Log("初始化完成");
 		}
@@ -67,11 +61,9 @@ namespace PostNamazu.Actions {
 #if DEBUG
 				Log($"{GetType().Name} 模组未就绪，正在等待第 {count} / {Constants.ModuleInitMaxWaitCount} 次…");
 #endif
-				Thread.Sleep(Constants.ModuleInitWaitInterval);
 				if (count <= Constants.ModuleInitMaxWaitCount) continue;
 				// 不应进入此分支，进入此分支说明 State 由于程序逻辑问题而错误地保持在 Waiting 状态
 				Log($"{GetType().Name} 模组长期未能初始化，已跳过。");
-				State = PostNamazu.StateEnum.Failure;
 			}
 			if (State == PostNamazu.StateEnum.Failure) {
 				var noModuleMsg = L.Get("PostNamazu/moduleInitFail", GetType().Name);
