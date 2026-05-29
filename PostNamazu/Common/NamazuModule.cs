@@ -37,6 +37,7 @@ namespace PostNamazu.Actions {
 		}
 
 		protected virtual void GetOffsets() {
+			PluginUI.Log($"GetOffsets: {GetType().Name}");
 		}
 
 		protected static void Log(string msg) {

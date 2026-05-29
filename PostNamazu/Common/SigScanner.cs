@@ -241,10 +241,7 @@ public class SigScanner {
 		_data = _memhelper.ReadBytes(_baseAddress, (int)_dataLength);
 	}
 
-	public T ScanText<T>(string pattern, Func<IntPtr, T> visitor, string name = null) {
-		var result = ScanText(pattern, name);
-		return visitor(result);
-	}
+	public T ScanText<T>(string pattern, Func<IntPtr, T> visitor, string name = null) => visitor(ScanText(pattern, name));
 
 	/// <summary>
 	///     使用签名字符串扫描内存，并返回唯一匹配的位置指针，格式详见 <see cref="SigPatternInfo(string)" /> 。<br /><br />

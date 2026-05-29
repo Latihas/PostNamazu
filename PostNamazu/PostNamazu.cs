@@ -25,17 +25,7 @@ public class PostNamazu : IActPluginV1 {
 
 	private HttpServer? _httpServer;
 
-	internal Process FFXIV {
-		get {
-			if (field != null) return field;
-			field = Plugin.FFXIV_ACT_Plugin.DataRepository.GetCurrentFFXIVProcess();
-			Plugin.SetState(StateEnum.Waiting);
-			Plugin.Detach();
-			Plugin.Attach();
-			return field;
-		}
-		private set;
-	}
+	internal Process FFXIV;
 	internal FFXIV_ACT_Plugin.FFXIV_ACT_Plugin FFXIV_ACT_Plugin;
 	// public ExternalProcessMemory Memory;
 	public static IDalamudPluginInterface DalamudPluginInterface;
@@ -89,6 +79,10 @@ public class PostNamazu : IActPluginV1 {
 
 		FFXIV_ACT_Plugin = GetFFXIVPlugin();
 
+		FFXIV = Plugin.FFXIV_ACT_Plugin.DataRepository.GetCurrentFFXIVProcess();
+		Plugin.SetState(StateEnum.Waiting);
+	
+
 		// 初始化管理器
 		_integrationManager = new PluginIntegrationManager();
 
@@ -98,6 +92,7 @@ public class PostNamazu : IActPluginV1 {
 
 		InitializeActions();
 		_integrationManager.InitializeIntegrations();
+		Plugin.Attach();
 		Log.Info(L.Get("PostNamazu/pluginInit"));
 		LogACT("Initialized");
 	}
@@ -106,14 +101,10 @@ public class PostNamazu : IActPluginV1 {
 	}
 
 	public void DeInitPlugin() {
-		//FFXIV_ACT_Plugin.DataSubscription.ProcessChanged -= ProcessChanged;
 		PluginUi.SaveSettings();
 		Detach();
 		_integrationManager.DeInitializeIntegrations();
 		if (_httpServer != null) ServerStop();
-
-		// _lblStatus.Text = L.Get("PostNamazu/pluginDeInit");
-		// Log.Info(L.Get("PostNamazu/pluginDeInit"));
 		Plugin = null;
 	}
 
@@ -195,12 +186,9 @@ public class PostNamazu : IActPluginV1 {
 
 	internal void Attach() {
 		try {
-			// Memory = new ExternalProcessMemory(FFXIV, true, false, _entrancePtr, false, 5, true);
 			PluginUi.Log(L.Get("PostNamazu/xivProcInject", FFXIV.Id));
 			State = StateEnum.Ready;
 			LogACT("Attached");
-
-		
 			_isCN = null;
 			GetRegion();
 			foreach (var m in Modules) m.Setup();
@@ -241,19 +229,7 @@ public class PostNamazu : IActPluginV1 {
 	}
 
 	private unsafe void GetRegionByMemory() {
-		// if (FrameworkPtrPtr != IntPtr.Zero) // scanning FrameworkPtrPtr
-		// {
 		var language = Framework.Instance()->ClientLanguage;
-		// try
-		// {
-		//     language = Memory.Read<byte>(FrameworkPtr + 0x580);
-		// }
-		// catch
-		// {
-		//     ExceptionHandler.HandleMemoryReadException();
-		//     // 重构修正：内存读取失败时静默返回，避免显示错误信息
-		//     return;
-		// }
 		bool? result = language switch {
 			0 or 1 or 2 or 3 => false,
 			4 => true,
@@ -266,25 +242,14 @@ public class PostNamazu : IActPluginV1 {
 				: L.Get("PostNamazu/xivDetectMemRegionGlobal")
 			);
 		} else _isCN = false; // default
-		// }
 	}
-
-
-	// private void LogRegion() {
-	//     if (!_isCN.HasValue) return;
-	//     PluginUi.Log(_isCN.Value
-	//         ? L.Get("PostNamazu/xivDetectRegionCN")
-	//         : L.Get("PostNamazu/xivDetectRegionGlobal")
-	//     );
-	// }
 
 	#endregion
 
 	#region Logging
 
 	internal static void LogACT(string msg) {
-		var log = $"00|{DateTime.Now:O}|FFFF|{Constants.PluginName}|{msg}|0000000000000000";
-		ActGlobals.oFormActMain.ParseRawLogLine(log);
+		ActGlobals.oFormActMain.ParseRawLogLine($"00|{DateTime.Now:O}|FFFF|{Constants.PluginName}|{msg}|0000000000000000");
 	}
 
 	#endregion
