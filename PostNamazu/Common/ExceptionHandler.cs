@@ -13,10 +13,8 @@ public static class ExceptionHandler {
 	/// </summary>
 	public static void HandleHttpServerException(Exception ex, int port, PostNamazuUi? ui, Action? enableStartButton, Action? disableStopButton) {
 		var errorMessage = L.Get("PostNamazu/httpException", port, ex.Message);
-
 		enableStartButton?.Invoke();
 		disableStopButton?.Invoke();
-
 		ui?.Log(errorMessage);
 		MessageBox.Show(errorMessage);
 	}
@@ -26,12 +24,5 @@ public static class ExceptionHandler {
 	/// </summary>
 	public static void HandleActionExecutionException(Exception ex, string command, PostNamazuUi? ui) {
 		ui?.Log(L.Get("PostNamazu/doActionFail", command, ex.Message + "\n" + ex.StackTrace));
-	}
-
-	/// <summary>
-	///     处理区域检测异常
-	/// </summary>
-	public static void HandleRegionDetectionException(Exception ex, PostNamazuUi? ui) {
-		ui?.Log(L.Get("PostNamazu/getRegionMemoryFail", ex.Message));
 	}
 }

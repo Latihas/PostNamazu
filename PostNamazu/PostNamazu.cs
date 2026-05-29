@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
@@ -19,16 +20,12 @@ namespace PostNamazu;
 public class PostNamazu : IActPluginV1 {
 	public static PostNamazu Plugin;
 	public PostNamazuUi PluginUi;
-	// private Label _lblStatus; // The status label that appears in ACT's Plugin tab
-
 	private PluginIntegrationManager _integrationManager;
-
 	private HttpServer? _httpServer;
-
 	internal Process FFXIV;
 	internal FFXIV_ACT_Plugin.FFXIV_ACT_Plugin FFXIV_ACT_Plugin;
-	// public ExternalProcessMemory Memory;
 	public static IDalamudPluginInterface DalamudPluginInterface;
+	[SuppressMessage("ReSharper", "NotAccessedField.Global")]
 	public SigScanner SigScanner;
 	internal ISigScanner DalamudSigScanner;
 	public IPluginLog Log;
@@ -50,23 +47,7 @@ public class PostNamazu : IActPluginV1 {
 		Ready
 	}
 
-	private StateEnum _state = StateEnum.Waiting;
-	public StateEnum State {
-		get => _state;
-		private set => SetState(value);
-	}
-
-	/// <summary>
-	///     设置插件状态（供内部类使用）
-	/// </summary>
-	internal void SetState(StateEnum value) {
-		_state = value;
-#if DEBUG
-		PluginUi.Log($"插件状态变更：{value}");
-#endif
-	}
-
-	#region Init
+	public StateEnum State { get; private set; } = StateEnum.Waiting;
 
 	public void InitPlugin(IDalamudPluginInterface dalamudPluginInterface, IPluginLog log, ISigScanner dalamudSigScanner) {
 		Plugin = this;
@@ -80,8 +61,7 @@ public class PostNamazu : IActPluginV1 {
 		FFXIV_ACT_Plugin = GetFFXIVPlugin();
 
 		FFXIV = Plugin.FFXIV_ACT_Plugin.DataRepository.GetCurrentFFXIVProcess();
-		Plugin.SetState(StateEnum.Waiting);
-	
+		Plugin.State = StateEnum.Waiting;
 
 		// 初始化管理器
 		_integrationManager = new PluginIntegrationManager();
@@ -102,7 +82,6 @@ public class PostNamazu : IActPluginV1 {
 
 	public void DeInitPlugin() {
 		PluginUi.SaveSettings();
-		Detach();
 		_integrationManager.DeInitializeIntegrations();
 		if (_httpServer != null) ServerStop();
 		Plugin = null;
@@ -134,9 +113,8 @@ public class PostNamazu : IActPluginV1 {
 		}
 	}
 
-	public T? GetModuleInstance<T>() where T : NamazuModule {
-		return Modules.FirstOrDefault(m => m is T) as T;
-	}
+	public T? GetModuleInstance<T>() where T : NamazuModule =>
+		Modules.FirstOrDefault(m => m is T) as T;
 
 	/// <summary>
 	///     获取所有命令键（供集成管理器使用）
@@ -164,7 +142,6 @@ public class PostNamazu : IActPluginV1 {
 			_httpServer.PostNamazuDelegate = null;
 			_httpServer.OnException -= OnException;
 		}
-
 		PluginUi.ButtonStart.Enabled = true;
 		PluginUi.ButtonStop.Enabled = false;
 		PluginUi.Log(L.Get("PostNamazu/httpStop"));
@@ -174,23 +151,16 @@ public class PostNamazu : IActPluginV1 {
 	///     委托给HttpServer类的异常处理
 	/// </summary>
 	/// <param name="ex"></param>
-	private void OnException(Exception ex) {
+	private void OnException(Exception ex) =>
 		ExceptionHandler.HandleHttpServerException(ex, _httpServer?.Port ?? -1, PluginUi,
 			() => PluginUi.ButtonStart.Enabled = true,
 			() => PluginUi.ButtonStop.Enabled = false);
-	}
-
-	#endregion
-
-	#region Memory and Process Management
 
 	internal void Attach() {
 		try {
 			PluginUi.Log(L.Get("PostNamazu/xivProcInject", FFXIV.Id));
 			State = StateEnum.Ready;
 			LogACT("Attached");
-			_isCN = null;
-			GetRegion();
 			foreach (var m in Modules) m.Setup();
 			LogACT("ModulesInitialized");
 		} catch (Exception ex) {
@@ -200,61 +170,14 @@ public class PostNamazu : IActPluginV1 {
 		}
 	}
 
-	internal void Detach() {
-		FFXIV = null;
-	}
-
 	private static FFXIV_ACT_Plugin.FFXIV_ACT_Plugin GetFFXIVPlugin() => ActGlobals.oFormActMain.FfxivPlugin
 	                                                                     ?? throw new Exception(L.Get("PostNamazu/parserNotFound"));
 
-	#endregion
-
-	#region Region Detection
-
-	internal static bool _playerDetected = false;
-	internal static bool? _isCN;
-	public bool IsCN {
-		get {
-			if (!_isCN.HasValue) GetRegion();
-			return _isCN ?? false;
-		}
-	}
-
-	private void GetRegion() {
-		try {
-			GetRegionByMemory();
-		} catch (Exception ex) {
-			ExceptionHandler.HandleRegionDetectionException(ex, PluginUi);
-		}
-	}
-
-	private unsafe void GetRegionByMemory() {
-		var language = Framework.Instance()->ClientLanguage;
-		bool? result = language switch {
-			0 or 1 or 2 or 3 => false,
-			4 => true,
-			_ => null
-		};
-		if (result.HasValue) {
-			_isCN = result;
-			PluginUi.Log(_isCN.Value
-				? L.Get("PostNamazu/xivDetectMemRegionCN")
-				: L.Get("PostNamazu/xivDetectMemRegionGlobal")
-			);
-		} else _isCN = false; // default
-	}
-
-	#endregion
-
-	#region Logging
+	public unsafe bool IsCN => Framework.Instance()->ClientLanguage == 4;
 
 	internal static void LogACT(string msg) {
 		ActGlobals.oFormActMain.ParseRawLogLine($"00|{DateTime.Now:O}|FFFF|{Constants.PluginName}|{msg}|0000000000000000");
 	}
-
-	#endregion
-
-	#region Delegate
 
 	/// <summary>
 	///     执行指令对应的方法
@@ -264,12 +187,10 @@ public class PostNamazu : IActPluginV1 {
 	public void DoAction(string command, string payload) {
 		try {
 			var reflectedType = GetAction(command).GetMethodInfo().ReflectedType!.Name;
-
 			if (ActionEnabled.TryGetValue(reflectedType, out var value) && value) //不响应没有启用的动作
 				GetAction(command)(payload);
 			else
 				PluginUi.Log(L.Get("PostNamazu/actionIgnored", command, payload));
-		} catch (NamazuModule.IgnoredException) {
 		} catch (Exception ex) {
 			ExceptionHandler.HandleActionExecutionException(ex, command, PluginUi);
 		}
@@ -280,9 +201,7 @@ public class PostNamazu : IActPluginV1 {
 	/// </summary>
 	/// <param name="command">指令类型</param>
 	/// <param name="action">对应指令的方法委托</param>
-	public void SetAction(string command, HandlerDelegate action) {
-		CmdBind[command] = action;
-	}
+	public void SetAction(string command, HandlerDelegate action) => CmdBind[command] = action;
 
 	/// <summary>
 	///     获取指令对应的方法
@@ -300,9 +219,5 @@ public class PostNamazu : IActPluginV1 {
 	/// <summary>
 	///     清空绑定的委托列表
 	/// </summary>
-	public void ClearAction() {
-		CmdBind.Clear();
-	}
-
-	#endregion
+	public void ClearAction() => CmdBind.Clear();
 }

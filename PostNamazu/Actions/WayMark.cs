@@ -161,7 +161,6 @@ public class WayMark : NamazuModule {
 	}
 
 	public unsafe WayMarks ReadCurrentWaymarks() {
-		CheckBeforeExecution();
 		var m = MarkingController.Instance()->FieldMarkers;
 		var waymarks = new WayMarks {
 			A = ReadWaymark(m[0], WaymarkID.A),

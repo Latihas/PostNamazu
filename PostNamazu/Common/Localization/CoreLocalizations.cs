@@ -5,7 +5,8 @@ namespace PostNamazu.Common.Localization;
 /// <summary>
 ///     核心本地化字符串定义
 /// </summary>
-[LocalizationProvider("PostNamazu")] [SuppressMessage("ReSharper", "UnusedType.Global")]
+[LocalizationProvider("PostNamazu")]
+[SuppressMessage("ReSharper", "UnusedType.Global")]
 [SuppressMessage("Performance", "CS0169")]
 public static class CoreLocalizations {
 	// UI相关
