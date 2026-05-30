@@ -69,6 +69,7 @@ internal class Queue : NamazuModule {
 	[Command("stop")]
 	[Command("break")]
 	[Command("BreakQueueActions")]
+	[SuppressMessage("Performance", "CA1822")]
 	public void BreakQueue(string command) {
 		Log(L.Get("Queue/Break", command));
 		if (command.ToLower() == "all") QueuePending.Clear();
