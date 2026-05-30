@@ -10,8 +10,7 @@ using System.Xml;
 using PostNamazu.Actions;
 using PostNamazu.Common.Localization;
 
-// ReSharper disable CheckNamespace
-
+// ReSharper disable once CheckNamespace
 namespace PostNamazu;
 
 public partial class PostNamazuUi : UserControl {
