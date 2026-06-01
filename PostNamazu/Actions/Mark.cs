@@ -7,13 +7,12 @@ using Newtonsoft.Json;
 using PostNamazu.Attributes;
 using PostNamazu.Common.Localization;
 using PostNamazu.Models;
-using Triggernometry.PluginBridges.BridgeNamazu;
 
 namespace PostNamazu.Actions;
 
 [SuppressMessage("Performance", "CS0649")]
 [SuppressMessage("ReSharper", "UnusedType.Global")]
-internal class Mark : NamazuModule {
+public class Mark : NamazuModule {
 	private delegate IntPtr MarkingDelegate(long a1, uint markingTypeOrder, long id);
 
 	private unsafe delegate void LocalMarkingDelegate(MarkingController* controller, uint markingTypeOrder, long id, uint a4);
@@ -73,7 +72,7 @@ internal class Mark : NamazuModule {
 		if (shouldLog) {
 			PluginUI.Log($"Mark: Actor={actor.Name} (0x{actor.ID:X8}), Type={markingType} ({(int)markingType}), LocalOnly={localOnly}");
 		}
-		GreyMagicMemoryBase.ExecuteWithLock(() => {
+		PostNamazu.ExecuteWithLock(() => {
 			_localMarkingDelegate(MarkingController.Instance(), (uint)(markingType - 1), actor.ID, 0);
 			_markingDelegate(0, (uint)(markingType - 1), actor.ID);
 		});

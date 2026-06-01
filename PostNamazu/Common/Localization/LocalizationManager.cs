@@ -56,9 +56,7 @@ public static class LocalizationManager {
 			foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)) {
 				var localizedAttr = field.GetCustomAttribute<LocalizedAttribute>();
 				if (localizedAttr == null) continue;
-
-				var key = $"{prefix}/{field.Name}";
-				Register(key, localizedAttr.English, localizedAttr.Chinese);
+				Register($"{prefix}/{field.Name}", localizedAttr.English, localizedAttr.Chinese);
 			}
 		}
 

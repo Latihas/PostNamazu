@@ -11,7 +11,7 @@ namespace PostNamazu.Actions;
 
 [SuppressMessage("Performance", "CS0649")]
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
-internal class Queue : NamazuModule {
+public class Queue : NamazuModule {
 	private static readonly List<string> QueuePending = []; //注册qid的队列
 
 	// 本地化字符串定义

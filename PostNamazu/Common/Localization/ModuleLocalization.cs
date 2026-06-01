@@ -23,8 +23,7 @@ public abstract class ModuleLocalization {
 		// 获取所有公共字段
 		foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Static)) {
 			if (field.FieldType != typeof(LocalizedString) || field.GetValue(null) is not LocalizedString value) continue;
-			var key = $"{prefix}/{field.Name}";
-			LocalizationManager.Register(key, value.English, value.Chinese);
+			LocalizationManager.Register($"{prefix}/{field.Name}", value.English, value.Chinese);
 		}
 	}
 }

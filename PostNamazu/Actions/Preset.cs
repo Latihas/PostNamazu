@@ -8,13 +8,12 @@ using Newtonsoft.Json;
 using PostNamazu.Attributes;
 using PostNamazu.Common.Localization;
 using PostNamazu.Models;
-using Triggernometry.PluginBridges.BridgeNamazu;
 
 namespace PostNamazu.Actions;
 
 [SuppressMessage("Performance", "CS0649")]
 [SuppressMessage("ReSharper", "UnusedType.Global")]
-internal partial class Preset : NamazuModule {
+public partial class Preset : NamazuModule {
 	// 本地化字符串定义
 	[LocalizationProvider("Preset")]
 	[SuppressMessage("ReSharper", "UnusedType.Local")]
@@ -78,7 +77,7 @@ internal partial class Preset : NamazuModule {
 		newPreset.ActiveMarkers = activeMask;
 		newPreset.ContentFinderConditionId = waymarks.MapID;
 		newPreset.Timestamp = (int)new DateTimeOffset(DateTimeOffset.Now.UtcDateTime).ToUnixTimeSeconds();
-		GreyMagicMemoryBase.ExecuteWithLock(() => {
+		PostNamazu.ExecuteWithLock(() => {
 			Marshal.StructureToPtr(newPreset,
 				(IntPtr)FieldMarkerModule.Instance()
 				+ Marshal.OffsetOf<FieldMarkerModule>("_presets")

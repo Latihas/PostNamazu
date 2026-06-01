@@ -10,19 +10,17 @@ namespace PostNamazu.Common;
 
 public class SigScanner {
 	private readonly MemHelper _memhelper;
-	private readonly uint CodeBase;
-	private readonly uint _dataLength;
-	private readonly byte[] _data;
-	private readonly IntPtr _baseAddress;
-
-	/// <summary>
-	///     The offset of the .data section from the base of the module.
-	/// </summary>
-	private long DataSectionOffset { get; set; }
-	/// <summary>
-	///     The size of the .data section.
-	/// </summary>
-	private int DataSectionSize { get; set; }
+	public readonly uint SizeOfCode;
+	public readonly uint CodeBase;
+	public readonly uint _dataLength;
+	public readonly byte[] _data;
+	public readonly IntPtr _baseAddress;
+	public IntPtr TextSectionBase => new(_baseAddress.ToInt64() + TextSectionOffset);
+	public long TextSectionOffset { get; private set; }
+	public int TextSectionSize { get; private set; }
+	public IntPtr DataSectionBase => new(_baseAddress.ToInt64() + DataSectionOffset);
+	public long DataSectionOffset { get; set; }
+	public int DataSectionSize { get; set; }
 
 	private void SetupSearchSpace(ProcessModule module) {
 		var baseAddress = module.BaseAddress;
@@ -235,9 +233,9 @@ public class SigScanner {
 		var dosHeaders = _memhelper.Read<IMAGE_DOS_HEADER>(_baseAddress);
 		if (!dosHeaders.IsValid) return;
 		var ntHeaders = _memhelper.Read<IMAGE_NT_HEADERS64>(_baseAddress + dosHeaders.e_lfanew);
-		var sizeOfCode = ntHeaders.OptionalHeader.SizeOfCode;
+		SizeOfCode = ntHeaders.OptionalHeader.SizeOfCode;
 		CodeBase = ntHeaders.OptionalHeader.BaseOfCode;
-		_dataLength = CodeBase + sizeOfCode;
+		_dataLength = CodeBase + SizeOfCode;
 		_data = _memhelper.ReadBytes(_baseAddress, (int)_dataLength);
 	}
 

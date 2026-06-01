@@ -10,7 +10,6 @@ using PostNamazu.Common.Localization;
 using PostNamazu.Models;
 using RainbowMage.OverlayPlugin;
 using RainbowMage.OverlayPlugin.MemoryProcessors.InCombat;
-using Triggernometry.PluginBridges.BridgeNamazu;
 
 namespace PostNamazu.Actions;
 
@@ -201,7 +200,7 @@ public class WayMark : NamazuModule {
 
 		var wId = id == -1 ? (byte)waymark.ID : id;
 		if (wId is < 0 or >= 8) PostNamazu.Log.Error("ID必须在0-7范围内");
-		GreyMagicMemoryBase.ExecuteWithLock(() => {
+		PostNamazu.ExecuteWithLock(() => {
 			Marshal.StructureToPtr(waymark.Marker,
 				(IntPtr)MarkingController.Instance()
 				+ Marshal.OffsetOf<MarkingController>("_fieldMarkers")
@@ -244,7 +243,7 @@ public class WayMark : NamazuModule {
 	public bool GetInCombat() {
 		try {
 			var op = ActGlobals.oFormActMain.ActPlugins
-				.First(x => x.pluginObj.GetType() == typeof(PluginLoader))
+				.First(x => x.pluginObj is PluginLoader)
 				.pluginObj as PluginLoader;
 
 			var pluginMain = op!.pluginMain;

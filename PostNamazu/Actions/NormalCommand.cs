@@ -6,12 +6,11 @@ using FFXIVClientStructs.FFXIV.Client.UI;
 using PostNamazu.Attributes;
 using PostNamazu.Common;
 using PostNamazu.Common.Localization;
-using Triggernometry.PluginBridges.BridgeNamazu;
 
 namespace PostNamazu.Actions;
 
 [SuppressMessage("Performance", "CS0649")]
-internal class NormalCommand : NamazuModule {
+public class NormalCommand : NamazuModule {
 	private unsafe delegate IntPtr ProcessChatBoxDelegate(UIModule* module, Utf8String* message, IntPtr a3, byte a4);
 
 	private static ProcessChatBoxDelegate _processChatBox;
@@ -53,7 +52,7 @@ internal class NormalCommand : NamazuModule {
 		CheckBeforeExecution(command);
 		CheckChannel(ref command);
 		PluginUI.Log(command);
-		GreyMagicMemoryBase.ExecuteWithLock(() => {
+		PostNamazu.ExecuteWithLock(() => {
 			fixed (byte* ptr = (ReadOnlySpan<byte>)Encoding.UTF8.GetBytes(command)) {
 				_processChatBox(UIModule.Instance(), Utf8String.FromSequence(ptr), IntPtr.Zero, 0);
 			}

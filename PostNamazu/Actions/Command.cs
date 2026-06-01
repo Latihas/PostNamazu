@@ -6,7 +6,7 @@ namespace PostNamazu.Actions;
 
 [SuppressMessage("Performance", "CS0649")]
 [SuppressMessage("ReSharper", "UnusedType.Global")]
-internal class Command : NormalCommand {
+public class Command : NormalCommand {
 	// 本地化字符串定义
 	[LocalizationProvider("Command")]
 	[SuppressMessage("ReSharper", "UnusedType.Local")]

@@ -20,20 +20,21 @@ namespace PostNamazu;
 public class PostNamazu : IActPluginV1 {
 	public static PostNamazu Plugin;
 	public PostNamazuUi PluginUi;
-	private PluginIntegrationManager _integrationManager;
+	private dynamic _integrationManager;
 	private HttpServer? _httpServer;
 	internal Process FFXIV;
 	internal FFXIV_ACT_Plugin.FFXIV_ACT_Plugin FFXIV_ACT_Plugin;
 	public static IDalamudPluginInterface DalamudPluginInterface;
 	[SuppressMessage("ReSharper", "NotAccessedField.Global")]
 	public SigScanner SigScanner;
-	internal ISigScanner DalamudSigScanner;
+	public ISigScanner DalamudSigScanner;
 	public IPluginLog Log;
-
-	private Dictionary<string, bool> ActionEnabled => PluginUi.ActionEnabled; //直接使用UI控件上的ActionEnabled状态
+	public IFramework DalamudFramework;
+	public static void ExecuteWithLock(Action a) => Plugin.DalamudFramework.RunOnTick(a).Wait();
+	public Dictionary<string, bool> ActionEnabled => PluginUi.ActionEnabled; //直接使用UI控件上的ActionEnabled状态
 	private readonly Dictionary<string, HandlerDelegate> CmdBind = new(StringComparer.OrdinalIgnoreCase); //key不区分大小写
 
-	private readonly List<NamazuModule> Modules = [];
+	public readonly List<NamazuModule> Modules = [];
 
 	/// <summary> 插件或模组的当前状态。 </summary>
 	public enum StateEnum {
@@ -49,11 +50,12 @@ public class PostNamazu : IActPluginV1 {
 
 	public StateEnum State { get; private set; } = StateEnum.Waiting;
 
-	public void InitPlugin(IDalamudPluginInterface dalamudPluginInterface, IPluginLog log, ISigScanner dalamudSigScanner) {
+	public void InitPlugin(IDalamudPluginInterface dalamudPluginInterface, IPluginLog log, ISigScanner dalamudSigScanner, IFramework framework, dynamic integrationManager) {
 		Plugin = this;
 		DalamudPluginInterface = dalamudPluginInterface;
 		Log = log;
 		DalamudSigScanner = dalamudSigScanner;
+		DalamudFramework = framework;
 		SigScanner = new SigScanner();
 		PluginUi = new PostNamazuUi();
 		PluginUi.Log(L.Get("PostNamazu/pluginVersion", Assembly.GetExecutingAssembly().GetName().Version));
@@ -64,7 +66,7 @@ public class PostNamazu : IActPluginV1 {
 		Plugin.State = StateEnum.Waiting;
 
 		// 初始化管理器
-		_integrationManager = new PluginIntegrationManager();
+		_integrationManager = integrationManager;
 
 		if (PluginUi.AutoStart) ServerStart();
 		PluginUi.ButtonStart.Click += ServerStart;
@@ -119,7 +121,7 @@ public class PostNamazu : IActPluginV1 {
 	/// <summary>
 	///     获取所有命令键（供集成管理器使用）
 	/// </summary>
-	internal string[] GetCommandKeys() => CmdBind.Keys.ToArray();
+	public string[] GetCommandKeys() => CmdBind.Keys.ToArray();
 
 	public void ServerStart(object? sender = null, EventArgs? e = null) {
 		try {

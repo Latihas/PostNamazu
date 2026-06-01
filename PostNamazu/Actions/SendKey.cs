@@ -8,7 +8,7 @@ namespace PostNamazu.Actions;
 
 [SuppressMessage("Performance", "CS0649")]
 [SuppressMessage("ReSharper", "UnusedType.Global")]
-internal class SendKey : NamazuModule {
+public class SendKey : NamazuModule {
 	// 本地化字符串定义
 	[LocalizationProvider("SendKey")] [SuppressMessage("ReSharper", "UnusedType.Local")]
 	private static class Localizations {
