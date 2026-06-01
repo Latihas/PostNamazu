@@ -30,7 +30,7 @@ public class PostNamazu : IActPluginV1 {
 	public ISigScanner DalamudSigScanner;
 	public IPluginLog Log;
 	public IFramework DalamudFramework;
-	public static void ExecuteWithLock(Action a) => Plugin.DalamudFramework.RunOnTick(a).Wait();
+	public static void ExecuteWithLock(Action a) => Plugin.DalamudFramework.RunOnTick(a);
 	public Dictionary<string, bool> ActionEnabled => PluginUi.ActionEnabled; //直接使用UI控件上的ActionEnabled状态
 	private readonly Dictionary<string, HandlerDelegate> CmdBind = new(StringComparer.OrdinalIgnoreCase); //key不区分大小写
 
