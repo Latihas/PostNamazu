@@ -23,7 +23,6 @@ public class PostNamazu : IActPluginV1 {
 	private dynamic _integrationManager;
 	private HttpServer? _httpServer;
 	internal Process FFXIV;
-	internal FFXIV_ACT_Plugin.FFXIV_ACT_Plugin FFXIV_ACT_Plugin;
 	public static IDalamudPluginInterface DalamudPluginInterface;
 	[SuppressMessage("ReSharper", "NotAccessedField.Global")]
 	public SigScanner SigScanner;
@@ -59,10 +58,7 @@ public class PostNamazu : IActPluginV1 {
 		SigScanner = new SigScanner();
 		PluginUi = new PostNamazuUi();
 		PluginUi.Log(L.Get("PostNamazu/pluginVersion", Assembly.GetExecutingAssembly().GetName().Version));
-
-		FFXIV_ACT_Plugin = GetFFXIVPlugin();
-
-		FFXIV = Plugin.FFXIV_ACT_Plugin.DataRepository.GetCurrentFFXIVProcess();
+		FFXIV = ActGlobals.oFormActMain.FfxivPlugin.DataRepository.GetCurrentFFXIVProcess();
 		Plugin.State = StateEnum.Waiting;
 
 		// 初始化管理器
@@ -171,9 +167,6 @@ public class PostNamazu : IActPluginV1 {
 			State = StateEnum.Failure;
 		}
 	}
-
-	private static FFXIV_ACT_Plugin.FFXIV_ACT_Plugin GetFFXIVPlugin() => ActGlobals.oFormActMain.FfxivPlugin
-	                                                                     ?? throw new Exception(L.Get("PostNamazu/parserNotFound"));
 
 	public unsafe bool IsCN => Framework.Instance()->ClientLanguage == 4;
 

@@ -242,11 +242,8 @@ public class WayMark : NamazuModule {
 
 	public bool GetInCombat() {
 		try {
-			var op = ActGlobals.oFormActMain.ActPlugins
-				.First(x => x.pluginObj is PluginLoader)
-				.pluginObj as PluginLoader;
-
-			var pluginMain = op!.pluginMain;
+			var op = (PluginLoader)ActGlobals.oFormActMain.OverlayPluginContainer;
+			var pluginMain = op.pluginMain;
 			var container = pluginMain._container;
 			var inCombatMemoryManager = container.Resolve<IInCombatMemory>();
 			return inCombatMemoryManager.GetInCombat();

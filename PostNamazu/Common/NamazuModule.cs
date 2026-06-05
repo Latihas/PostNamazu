@@ -11,12 +11,9 @@ namespace PostNamazu.Actions {
 				pattern.Replace('*', '?').Replace("??", "?").Replace("?", "??")));
 
 		protected static PostNamazu PostNamazu => PostNamazu.Plugin;
-		protected static FFXIV_ACT_Plugin.FFXIV_ACT_Plugin FFXIV_ACT_Plugin => PostNamazu.FFXIV_ACT_Plugin;
 		protected static Process FFXIV => PostNamazu.FFXIV;
 		protected static PostNamazuUi PluginUI => PostNamazu.PluginUi;
 
-		
-		private bool complaintAboutModuleNotReady;
 
 		[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
 		[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
