@@ -7,7 +7,7 @@ namespace PostNamazu.OverlayHoster;
 public class Program : IOverlayAddonV2 {
 	public Action<string, string> PostNamazuDelegate;
 	private EventSource eventSource;
-	
+
 	public void Init() {
 		var container = Registry.GetContainer();
 		var registry = container.Resolve<Registry>();
