@@ -275,9 +275,9 @@ public class SigScanner {
 			var disp32Ptr = patternPtr + sig.Disp32Offset; // 第一个 * 的地址
 			patternPtr = patternPtr + sig.NextCmdOffset + ReadInt32(disp32Ptr);
 		}
-#if DEBUG
-		PostNamazu.Plugin.PluginUi.Log($"[Scanner] {name ?? ""} @ {patternPtr} ({sig})");
-#endif
+// #if DEBUG
+// 		PostNamazu.Plugin.PluginUi.Log($"[Scanner] {name ?? ""} @ {patternPtr} ({sig})");
+// #endif
 		return patternPtr;
 	}
 

@@ -92,9 +92,9 @@ public class PostNamazu : IActPluginV1 {
 	/// </summary>
 	public void InitializeActions() {
 		foreach (var t in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsSubclassOf(typeof(NamazuModule)) && !t.IsAbstract)) {
-#if DEBUG
-			PluginUi.Log($"Initalizing Module: {t.Name}");
-#endif
+// #if DEBUG
+// 			PluginUi.Log($"Initalizing Module: {t.Name}");
+// #endif
 			if (Activator.CreateInstance(t) is not NamazuModule module) continue;
 			Modules.Add(module);
 			PluginUi.RegisterAction(t.Name);
@@ -103,9 +103,9 @@ public class PostNamazu : IActPluginV1 {
 				var handlerDelegate = (HandlerDelegate)Delegate.CreateDelegate(typeof(HandlerDelegate), module, action);
 				foreach (var command in action.GetCustomAttributes<CommandAttribute>()) {
 					SetAction(command.Command, handlerDelegate);
-#if DEBUG
-					PluginUi.Log($"{action.Name}@{command.Command}");
-#endif
+// #if DEBUG
+// 					PluginUi.Log($"{action.Name}@{command.Command}");
+// #endif
 				}
 			}
 		}

@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace PostNamazu.Common;
 
 /// <summary>
 ///     项目常量定义
 /// </summary>
+[SuppressMessage("ReSharper", "UnusedMember.Global")]
 public static class Constants {
 	/// <summary>
 	///     模组初始化最大等待次数

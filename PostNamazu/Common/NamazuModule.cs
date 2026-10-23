@@ -18,6 +18,7 @@ namespace PostNamazu.Actions {
 		[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Global")]
 		[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 		[SuppressMessage("Performance", "CA1822")]
+		[SuppressMessage("ReSharper", "UnusedMember.Global")]
 		public PostNamazu.StateEnum State => PostNamazu.StateEnum.Ready;
 
 		public void Setup() {
