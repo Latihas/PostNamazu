@@ -5,7 +5,7 @@ using RainbowMage.OverlayPlugin;
 namespace PostNamazu.OverlayHoster;
 
 internal class EventSource : EventSourceBase {
-	public Action<string, string> PostNamazuDelegate = null;
+	public Action<string, string>? PostNamazuDelegate = null;
 
 	public EventSource(TinyIoCContainer container) : base(container) {
 		Name = "鲶鱼精邮差";

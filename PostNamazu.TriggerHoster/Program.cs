@@ -6,8 +6,8 @@ using TriggernometryProxy;
 namespace PostNamazu.TriggerHoster;
 
 public class Program(ProxyPlugin plugin) {
-	public Action<string, string> PostNamazuDelegate = null;
-	public Action<string> LogDelegate = null;
+	public Action<string, string> PostNamazuDelegate;
+	public Action<string> LogDelegate;
 
 	private readonly List<int> _triggCallbackId = [];
 
