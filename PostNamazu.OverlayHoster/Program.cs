@@ -22,7 +22,5 @@ public class Program : IOverlayAddonV2 {
 	public void Init() {
 	}
 
-	public void DeInit() {
-		eventSource.PostNamazuDelegate = null;
-	}
+	public void DeInit() => eventSource.PostNamazuDelegate = null;
 }
