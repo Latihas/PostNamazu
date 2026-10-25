@@ -5,9 +5,9 @@ namespace PostNamazu.Common.Localization;
 /// <summary>
 ///     核心本地化字符串定义
 /// </summary>
+#pragma warning disable CS0169
 [LocalizationProvider("PostNamazu")]
 [SuppressMessage("ReSharper", "UnusedType.Global")]
-[SuppressMessage("Performance", "CS0169")]
 public static class CoreLocalizations {
 	// UI相关
 	[Localized("PostNamazu", "鲶鱼精邮差")] private static readonly string title;

@@ -15,7 +15,8 @@ public class Queue : NamazuModule {
 	private static readonly List<string> QueuePending = []; //注册qid的队列
 
 	// 本地化字符串定义
-	[LocalizationProvider("Queue")] [SuppressMessage("ReSharper", "UnusedType.Local")]
+	[LocalizationProvider("Queue")]
+	[SuppressMessage("ReSharper", "UnusedType.Local")]
 	private static class Localizations {
 		[Localized("Request to interrupt queue: {0}", "要求打断队列：{0}")]
 		public static readonly string Break;

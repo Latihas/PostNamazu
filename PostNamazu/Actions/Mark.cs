@@ -25,24 +25,16 @@ public class Mark : NamazuModule {
 	[LocalizationProvider("Mark")] [SuppressMessage("ReSharper", "UnusedType.Local")]
 	private static class Localizations {
 		[Localized("Could not find actor: {0}", "未能找到实体： {0}")]
-		public static readonly string ActorNotFound;
+		public static readonly string? ActorNotFound;
 
 		[Localized("Invalid format for actor marker", "实体标点格式错误")]
-		public static readonly string Exception;
+		public static readonly string? Exception;
 	}
 
 	protected override void GetOffsets() {
 		base.GetOffsets();
-		try {
 			_markingDelegate = GetSig<MarkingDelegate>("E8 * * * * E8 ? ? ? ? 48 8B CB 48 89 86");
-		} catch (Exception e) {
-			PostNamazu.Log.Error("Failed to initialize _markingDelegate: " + e);
-		}
-		try {
 			_localMarkingDelegate = GetSig<LocalMarkingDelegate>("E8 * * * * 4C 8B C5 8B D7 48 8B CB E8");
-		} catch (Exception e) {
-			PostNamazu.Log.Error("Failed to initialize _localMarkingDelegate: " + e);
-		}
 	}
 
 	[Command("mark")]

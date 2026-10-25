@@ -239,7 +239,7 @@ public class SigScanner {
 		_data = _memhelper.ReadBytes(_baseAddress, (int)_dataLength);
 	}
 
-	public T ScanText<T>(string pattern, Func<IntPtr, T> visitor, string name = null) => visitor(ScanText(pattern, name));
+	public T ScanText<T>(string pattern, Func<IntPtr, T> visitor, string? name = null) => visitor(ScanText(pattern, name));
 
 	/// <summary>
 	///     使用签名字符串扫描内存，并返回唯一匹配的位置指针，格式详见 <see cref="SigPatternInfo(string)" /> 。<br /><br />
@@ -295,13 +295,15 @@ public class SigScanner {
 
 		public SigPatternInfo(string hexPattern) {
 			Pattern = hexPattern;
-			Bytes = hexPattern.Trim().Split([' '], StringSplitOptions.RemoveEmptyEntries).Select(s => {
-				return s switch {
-					"*" or "**" => -2,
-					"?" or "??" => -1,
-					_ => byte.Parse(s, NumberStyles.AllowHexSpecifier)
-				};
-			}).ToList();
+			Bytes = [
+				.. hexPattern.Trim().Split([' '], StringSplitOptions.RemoveEmptyEntries).Select(s => {
+					return s switch {
+						"*" or "**" => -2,
+						"?" or "??" => -1,
+						_ => byte.Parse(s, NumberStyles.AllowHexSpecifier)
+					};
+				})
+			];
 
 			// relative addressing
 			var firstStar = Bytes.IndexOf(-2);

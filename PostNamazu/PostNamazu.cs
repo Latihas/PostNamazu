@@ -22,7 +22,7 @@ public class PostNamazu : IActPluginV1 {
 	public PostNamazuUi PluginUi;
 	private dynamic _integrationManager;
 	private HttpServer? _httpServer;
-	internal Process FFXIV;
+	// internal Process FFXIV;
 	public static IDalamudPluginInterface DalamudPluginInterface;
 	[SuppressMessage("ReSharper", "NotAccessedField.Global")]
 	public SigScanner SigScanner;
@@ -58,7 +58,7 @@ public class PostNamazu : IActPluginV1 {
 		SigScanner = new SigScanner();
 		PluginUi = new PostNamazuUi();
 		PluginUi.Log(L.Get("PostNamazu/pluginVersion", Assembly.GetExecutingAssembly().GetName().Version));
-		FFXIV = ActGlobals.oFormActMain.FfxivPlugin.DataRepository.GetCurrentFFXIVProcess();
+		// FFXIV = ActGlobals.oFormActMain.FfxivPlugin.DataRepository.GetCurrentFFXIVProcess();
 		Plugin.State = StateEnum.Waiting;
 
 		// 初始化管理器
@@ -117,7 +117,7 @@ public class PostNamazu : IActPluginV1 {
 	/// <summary>
 	///     获取所有命令键（供集成管理器使用）
 	/// </summary>
-	public string[] GetCommandKeys() => CmdBind.Keys.ToArray();
+	public string[] GetCommandKeys() => [.. CmdBind.Keys];
 
 	public void ServerStart(object? sender = null, EventArgs? e = null) {
 		try {
@@ -155,15 +155,15 @@ public class PostNamazu : IActPluginV1 {
 			() => PluginUi.ButtonStop.Enabled = false);
 
 	internal void Attach() {
+		var id = Environment.ProcessId;
 		try {
-			PluginUi.Log(L.Get("PostNamazu/xivProcInject", FFXIV.Id));
+			PluginUi.Log(L.Get("PostNamazu/xivProcInject", id));
 			State = StateEnum.Ready;
 			LogACT("Attached");
 			foreach (var m in Modules) m.Setup();
 			LogACT("ModulesInitialized");
 		} catch (Exception ex) {
-			PluginUi.Log(L.Get("PostNamazu/xivProcInjectFailWithError", FFXIV.Id, ex.Message + " \n" + ex.StackTrace));
-			FFXIV = null;
+			PluginUi.Log(L.Get("PostNamazu/xivProcInjectFailWithError",id, ex.Message + " \n" + ex.StackTrace));
 			State = StateEnum.Failure;
 		}
 	}

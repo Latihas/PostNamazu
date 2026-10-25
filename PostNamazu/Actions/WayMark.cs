@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Advanced_Combat_Tracker;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Newtonsoft.Json;
 using PostNamazu.Attributes;
@@ -17,10 +18,6 @@ namespace PostNamazu.Actions;
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public class WayMark : NamazuModule {
 	private WayMarks? tempMarks; //暂存场地标点
-
-	private delegate IntPtr ExecuteCommandDelegate(int a1, int a2, int a3, int a4, int a5);
-
-	private static ExecuteCommandDelegate _ExecuteCommandDelegate;
 
 	// 本地化字符串定义
 	[LocalizationProvider("WayMark")] [SuppressMessage("ReSharper", "UnusedType.Local")]
@@ -57,15 +54,6 @@ public class WayMark : NamazuModule {
 		[Localized("Waymarks: Exception occurred when saving waymarks: \n{0}",
 			"场地标点: 保存标记错误：\n{0}")]
 		public static readonly string SaveException;
-	}
-
-	protected override void GetOffsets() {
-		base.GetOffsets();
-		try {
-			_ExecuteCommandDelegate = GetSig<ExecuteCommandDelegate>("E8 * * * * 48 83 C4 ?? C3 CC CC CC CC CC CC CC CC CC CC CC CC 48 83 EC ?? 45 0F B6 C0");
-		} catch (Exception e) {
-			PostNamazu.Log.Error("Failed to initialize _ExecuteCommandDelegate: " + e);
-		}
 	}
 
 	/// <summary>
@@ -213,7 +201,7 @@ public class WayMark : NamazuModule {
 	public void Public(WayMarks? waymarks) {
 		if (waymarks == null || waymarks.All(waymark => waymark?.Active == false)) {
 			// clear all
-			ExecuteCommand(313);
+			GameMain.ExecuteCommand(313);
 			if (waymarks == null) {
 				Log(L.Get("WayMark/ClearPublic"));
 			}
@@ -224,21 +212,16 @@ public class WayMark : NamazuModule {
 				if (waymark == null) continue;
 				if (waymark.Active) {
 					// mark single
-					ExecuteCommand(317, idx, IntEncode(waymark.X), IntEncode(waymark.Y), IntEncode(waymark.Z));
+					GameMain.ExecuteCommand(317, idx, IntEncode(waymark.X), IntEncode(waymark.Y), IntEncode(waymark.Z));
 				} else {
 					// clear single
-					ExecuteCommand(318, idx);
+					GameMain.ExecuteCommand(318, idx);
 				}
 			}
 		}
 	}
 
 	internal static int IntEncode(float x) => (int)(x * 1000);
-
-	// 统一使用 uint 调用此内部函数（参数常用于传入 id 等，uint 相比于 int 更合理）
-	// 防止 GreyMagic 多次调用时参数类型不一致报错
-	private static void ExecuteCommand(int command, int a1 = 0, int a2 = 0, int a3 = 0, int a4 = 0)
-		=> _ExecuteCommandDelegate(command, a1, a2, a3, a4);
 
 	public bool GetInCombat() {
 		try {

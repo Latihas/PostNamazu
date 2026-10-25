@@ -18,7 +18,7 @@ internal class HttpServer : IDisposable {
 	public int Port { get; private set; } // 保持原始位置
 
 	public Action<string, string>? PostNamazuDelegate = null; // 保持原始位置
-	public event OnExceptionEventHandler OnException; // 保持原始位置
+	public event OnExceptionEventHandler? OnException; // 保持原始位置
 
 	#region Init // 保留原始区域名
 
@@ -63,7 +63,7 @@ internal class HttpServer : IDisposable {
 			_listener.Prefixes.Add("http://*:" + Port + "/");
 			_listener.Start();
 		} catch (Exception ex) {
-			OnException.Invoke(ex); // 保持异常触发逻辑
+			OnException?.Invoke(ex); // 保持异常触发逻辑
 			return;
 		}
 
