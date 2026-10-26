@@ -13,7 +13,7 @@ public class SigScanner {
 	public readonly uint SizeOfCode;
 	public readonly uint CodeBase;
 	public readonly uint _dataLength;
-	public readonly byte[] _data;
+	public readonly byte[]? _data;
 	public readonly IntPtr _baseAddress;
 	public IntPtr TextSectionBase => new(_baseAddress.ToInt64() + TextSectionOffset);
 	public long TextSectionOffset { get; private set; }
@@ -342,7 +342,7 @@ public class SigScanner {
 		var plen = (uint)pattern.Count;
 		var dataLength = _dataLength - plen;
 		for (var i = CodeBase; i < dataLength; i++) {
-			if (ByteMatch(_data, (int)i, pattern))
+			if (_data != null && ByteMatch(_data, (int)i, pattern))
 				ret.Add((IntPtr)i);
 		}
 		return ret;

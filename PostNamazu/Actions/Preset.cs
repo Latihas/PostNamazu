@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -19,7 +19,7 @@ public partial class Preset : NamazuModule {
 	[SuppressMessage("ReSharper", "UnusedType.Local")]
 	private static class Localizations {
 		[Localized("Preset and current map ID are both invalid, loading preset failed.", "预设与当前的地图 ID 均不合法，加载预设失败。")]
-		public static readonly string MapIdIllegal;
+		public static readonly string? MapIdIllegal;
 	}
 
 	/// <summary>

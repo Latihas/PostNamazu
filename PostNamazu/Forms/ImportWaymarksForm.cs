@@ -12,7 +12,7 @@ namespace PostNamazu;
 
 [SuppressMessage("ReSharper", "VirtualMemberCallInConstructor")]
 public class ImportWaymarksForm : Form {
-	private static string _prevData;
+	private static string _prevData = "";
 	private const string _defaultData =
 		"""
 		{

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using PostNamazu.Attributes;
@@ -13,10 +13,10 @@ public class SendKey : NamazuModule {
 	[LocalizationProvider("SendKey")] [SuppressMessage("ReSharper", "UnusedType.Local")]
 	private static class Localizations {
 		[Localized("Key sent: {0}", "已发送按键：{0}")]
-		public static readonly string Success;
+		public static readonly string? Success;
 
 		[Localized("Failed to send key {0}: \n{1}", "发送按键 {0} 失败：\n{1}")]
-		public static readonly string Fail;
+		public static readonly string? Fail;
 	}
 
 	[Command("sendkey")]

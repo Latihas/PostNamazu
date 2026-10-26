@@ -65,8 +65,8 @@ public static class LocalizationManager {
 	}
 
 	private class LocalizationEntry {
-		public string English { get; init; }
-		public string Chinese { get; init; }
+		public string English { get; init; } = "";
+		public string Chinese { get; init; } = "";
 	}
 }
 

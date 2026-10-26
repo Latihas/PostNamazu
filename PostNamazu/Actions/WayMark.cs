@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -23,37 +23,37 @@ public class WayMark : NamazuModule {
 	[LocalizationProvider("WayMark")] [SuppressMessage("ReSharper", "UnusedType.Local")]
 	private static class Localizations {
 		[Localized("Waymarks: cache restored", "场地标点: 已本地清除所有标点。")]
-		public static readonly string Clear;
+		public static readonly string? Clear;
 
 		[Localized("Waymarks: cache restored", "场地标点: 已公开清除所有标点。")]
-		public static readonly string ClearPublic;
+		public static readonly string? ClearPublic;
 
 		[Localized("Waymarks: Failed to obtain InCombat status from OverlayPlugin: \n{0}",
 			"从 OverlayPlugin 获取战斗状态失败：\n{0}")]
-		public static readonly string GetInCombatFail;
+		public static readonly string? GetInCombatFail;
 
 		[Localized("Waymarks: Currently in combat, unable to place public waymarks.",
 			"场地标点: 当前处于战斗状态，无法公开标点。")]
-		public static readonly string InCombat;
+		public static readonly string? InCombat;
 
 		[Localized("Waymarks: cache restored", "场地标点: 已本地恢复暂存的标点。")]
-		public static readonly string Load;
+		public static readonly string? Load;
 
 		[Localized("Waymarks: Local mark: \n{0}", "场地标点: 本地标记 \n{0}")]
-		public static readonly string Local;
+		public static readonly string? Local;
 
 		[Localized("Waymarks: Public mark: \n{0}", "场地标点: 公开标记 \n{0}")]
-		public static readonly string Public;
+		public static readonly string? Public;
 
 		[Localized("Waymarks: cache cleared", "场地标点: 已清除暂存的标点。")]
-		public static readonly string Reset;
+		public static readonly string? Reset;
 
 		[Localized("Waymarks: current waymarks saved to cache", "场地标点: 已暂存当前标点。")]
-		public static readonly string Save;
+		public static readonly string? Save;
 
 		[Localized("Waymarks: Exception occurred when saving waymarks: \n{0}",
 			"场地标点: 保存标记错误：\n{0}")]
-		public static readonly string SaveException;
+		public static readonly string? SaveException;
 	}
 
 	/// <summary>

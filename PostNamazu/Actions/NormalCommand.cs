@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using FFXIVClientStructs.FFXIV.Client.System.String;
@@ -17,7 +17,7 @@ public class NormalCommand : NamazuModule {
 	private static class Localizations {
 		[Localized("To avoid sending wrong text to public channels, only commands starting with \"/\" are permitted. Add the prefix \"{0}\" to post to the current channel.",
 			"为防止误操作导致错误文本发送至公共频道，仅允许以 \"/\" 开头的指令。如需发送至当前频道，请加前缀 \"{0}\"。")]
-		public static readonly string NoChannelError;
+		public static readonly string? NoChannelError;
 	}
 
 	private static void CheckChannel(ref string command) {

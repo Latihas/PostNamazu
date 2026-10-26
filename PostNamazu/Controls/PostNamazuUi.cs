@@ -42,9 +42,9 @@ public partial class PostNamazuUi : UserControl {
 		AddParserMessage(log);
 	}
 
-	private void CmdCopyProblematic_Click(object sender, EventArgs e) => CopyLog(true);
+	private void CmdCopyProblematic_Click(object? sender, EventArgs e) => CopyLog(true);
 
-	private void CmdCopySelection_Click(object sender, EventArgs e) => CopyLog(false);
+	private void CmdCopySelection_Click(object? sender, EventArgs e) => CopyLog(false);
 
 	private void CopyLog(bool copyAll) {
 		var stringBuilder = new StringBuilder();
@@ -62,14 +62,15 @@ public partial class PostNamazuUi : UserControl {
 		return true;
 	}
 
-	private void CmdClearMessages_Click(object sender, EventArgs e) {
+	private void CmdClearMessages_Click(object? sender, EventArgs e) {
 		lstMessages.Items.Clear();
 	}
 
 	private int prevTipIdx = -1;
 
-	private void LstMessages_MouseMove(object sender, MouseEventArgs e) {
-		var lb = (ListBox)sender;
+	private void LstMessages_MouseMove(object? sender, MouseEventArgs e) {
+		var lb = (ListBox?)sender;
+		if (lb == null) return;
 		var index = lb.IndexFromPoint(e.Location);
 		if (index == prevTipIdx) return;
 		if (index != -1)
@@ -144,7 +145,7 @@ public partial class PostNamazuUi : UserControl {
 		xWriter.Close();
 	}
 
-	private void LanguageRadioButton_CheckedChanged(object sender, EventArgs e) {
+	private void LanguageRadioButton_CheckedChanged(object? sender, EventArgs e) {
 		if (radioButtonEN.Checked) {
 			LocalizationManager.CurrentLanguage = Language.EN;
 		} else if (radioButtonCN.Checked) {
@@ -175,13 +176,13 @@ public partial class PostNamazuUi : UserControl {
 		}
 	}
 
-	private void BtnWaymarksImport_Click(object sender, EventArgs e) {
+	private void BtnWaymarksImport_Click(object? sender, EventArgs e) {
 		var importForm = new ImportWaymarksForm();
 		importForm.Show(this);
 		importForm.BringToFront();
 	}
 
-	private void BtnWaymarksExport_Click(object sender, EventArgs e) {
+	private void BtnWaymarksExport_Click(object? sender, EventArgs e) {
 		try {
 			var data = GetCurrentWaymarksString();
 			Clipboard.SetText(data);

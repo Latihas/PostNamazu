@@ -18,17 +18,17 @@ using SigScanner = PostNamazu.Common.SigScanner;
 namespace PostNamazu;
 
 public class PostNamazu : IActPluginV1 {
-	public static PostNamazu Plugin;
-	public PostNamazuUi PluginUi;
-	private dynamic _integrationManager;
+	public static PostNamazu Plugin = null!;
+	public PostNamazuUi PluginUi = null!;
+	private dynamic _integrationManager = null!;
 	private HttpServer? _httpServer;
 	// internal Process FFXIV;
-	public static IDalamudPluginInterface DalamudPluginInterface;
+	public static IDalamudPluginInterface DalamudPluginInterface = null!;
 	[SuppressMessage("ReSharper", "NotAccessedField.Global")]
-	public SigScanner SigScanner;
-	public ISigScanner DalamudSigScanner;
-	public IPluginLog Log;
-	public IFramework DalamudFramework;
+	public SigScanner SigScanner = null!;
+	public ISigScanner DalamudSigScanner = null!;
+	public IPluginLog Log = null!;
+	public IFramework DalamudFramework = null!;
 	public static void ExecuteWithLock(Action a) => Plugin.DalamudFramework.RunOnTick(a);
 	public Dictionary<string, bool> ActionEnabled => PluginUi.ActionEnabled; //直接使用UI控件上的ActionEnabled状态
 	private readonly Dictionary<string, HandlerDelegate> CmdBind = new(StringComparer.OrdinalIgnoreCase); //key不区分大小写
@@ -82,7 +82,6 @@ public class PostNamazu : IActPluginV1 {
 		PluginUi.SaveSettings();
 		_integrationManager.DeInitializeIntegrations();
 		if (_httpServer != null) ServerStop();
-		Plugin = null;
 	}
 
 	public delegate void HandlerDelegate(string command);

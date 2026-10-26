@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Advanced_Combat_Tracker;
@@ -18,17 +18,17 @@ public class Mark : NamazuModule {
 
 	private unsafe delegate void LocalMarkingDelegate(MarkingController* controller, uint markingTypeOrder, long id, uint a4);
 
-	private static MarkingDelegate _markingDelegate;
-	private static LocalMarkingDelegate _localMarkingDelegate;
+	private static MarkingDelegate? _markingDelegate;
+	private static LocalMarkingDelegate? _localMarkingDelegate;
 
 	// 本地化字符串定义
 	[LocalizationProvider("Mark")] [SuppressMessage("ReSharper", "UnusedType.Local")]
 	private static class Localizations {
 		[Localized("Could not find actor: {0}", "未能找到实体： {0}")]
-		public static readonly string? ActorNotFound;
+		public static readonly string? ActorNotFound = "";
 
 		[Localized("Invalid format for actor marker", "实体标点格式错误")]
-		public static readonly string? Exception;
+		public static readonly string? Exception = "";
 	}
 
 	protected override void GetOffsets() {
@@ -66,8 +66,8 @@ public class Mark : NamazuModule {
 			PluginUI.Log($"Mark: Actor={actor.Name} (0x{actor.ID:X8}), Type={markingType} ({(int)markingType}), LocalOnly={localOnly}");
 		}
 		PostNamazu.ExecuteWithLock(() => {
-			_localMarkingDelegate(MarkingController.Instance(), (uint)(markingType - 1), actor.ID, 0);
-			_markingDelegate(0, (uint)(markingType - 1), actor.ID);
+			(_localMarkingDelegate ?? throw new InvalidOperationException("Marking signatures have not been initialized."))(MarkingController.Instance(), (uint)(markingType - 1), actor.ID, 0);
+			(_markingDelegate ?? throw new InvalidOperationException("Marking signatures have not been initialized."))(0, (uint)(markingType - 1), actor.ID);
 		});
 	}
 }
